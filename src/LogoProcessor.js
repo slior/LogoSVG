@@ -29,7 +29,7 @@ class LogoProcessor
         let cmd = commands[st.action];
         if (cmd)
         {
-            console.log(`Executing: ${st.action}, ${JSON.stringify(st)}`)
+            // console.log(`Executing: ${st.action}, ${JSON.stringify(st)}`)
             cmd.apply(this,[st])
         }
         else

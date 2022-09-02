@@ -1,11 +1,25 @@
 
 const { SVG } = require('@svgdotjs/svg.js')
+const { assertInRange, assertNotNull,assertIsNum } = require('./util.js')
+
+const BOUNDS = {
+    X_LOW : 0,
+    X_HIGH : 1000,
+    Y_LOW : 0,
+    Y_HIGH : 1000,
+    ANGLE_LOW : 0,
+    ANGLE_HIGH : 360
+}
+
 
 class DrawingContext
 {
     constructor(x,y,_angle,drawingElement)
     {
-        //TODO: validate inputs
+        assertInRange(x,BOUNDS.X_LOW,BOUNDS.X_HIGH);
+        assertInRange(y,BOUNDS.Y_LOW,BOUNDS.Y_HIGH);
+        assertInRange(_angle,BOUNDS.ANGLE_LOW,BOUNDS.ANGLE_HIGH);
+        assertNotNull(drawingElement);
         this.lastX = x;
         this.lastY = y;
         this.angle = _angle;
@@ -30,6 +44,8 @@ class DrawingContext
 
     setAngle(a)
     {
+        assertIsNum(a);
+        a = a % BOUNDS.ANGLE_HIGH;
         this.angle = a;
     }
 }
