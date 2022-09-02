@@ -1,0 +1,72 @@
+<html>
+<head>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.1.2/svg.js"
+            integrity="sha512-WXWhnFUmZx+snPw8v2JjWQ0cdLUCLxTXhyqiZb7G5pkZZEGPBgVSzILSpkPK9haxW75sX5znfF08rsVnf6BUlw==" 
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+    <script src="./main.js"></script>
+<script>
+
+    
+
+    function getProgram() 
+    {
+        let ret = {
+            statements : [
+                { action : "fd", params : [50]},
+                { action : "rt", params : [90]},
+                { action : "fd", params : [50]},
+                { action : "rt", params : [90]},
+                { action : "fd", params : [50]},
+                { action : "rt", params : [90]},
+                { action : "fd", params : [50]},
+                { action : "rt", params : [90]},
+
+                { action: "rt", params: [45]},
+
+                {
+                    action : "loop",
+                    iterations : 5,
+                    statements : [
+                            {
+                                action : "loop",
+                                iterations : 4,
+                                statements : [
+                                    { action : "fd", params : [50]},
+                                    { action : "rt", params : [95]},
+                                ]
+                            },
+                            { action : "rt", params : [45]}
+                    ]
+                }
+            ]
+        }
+        return ret;
+    }
+
+    function drawProgram(program,context)
+    {
+        let p = new main.LogoProcessor.LogoProcessor();
+        program.statements.forEach(st => p.processStatement(st,context))
+    }
+
+    function init()
+    {
+        let drawingBoard = document.getElementById('drawing')
+
+        let context = new main.DrawingContext.DrawingContext(100,100,0,drawingBoard);
+        drawProgram(getProgram(),context);
+
+    }
+
+</script>
+</head>
+
+<body onload="init()">
+
+    <div id="drawing" width="100%" height="400px" style="border:1px solid black;height:50%"></div>
+
+</body>
+</html>
