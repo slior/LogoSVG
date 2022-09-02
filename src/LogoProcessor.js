@@ -1,28 +1,20 @@
 
+const {assertNonNegativeNum} = require("./util")
+
 class LogoProcessor
 {
     processStatement(st, drawingContext)
     {
         let commands = {
             "fd" : (st) => { 
-                let len = st.params[0]
-                let x2 = drawingContext.lastX + len * Math.cos(drawingContext.radianAngle())
-                let y2 = drawingContext.lastY + len * Math.sin(drawingContext.radianAngle())
-                drawingContext.drawingObj().line(drawingContext.lastX, drawingContext.lastY, x2, y2).stroke({ color: "black",width: 1 }) 
-                drawingContext.lastPointIs(x2,y2);
-                return drawingContext;
+                this.forward(st.params[0],drawingContext);
             },
             "rt" : (st) => {
-                let a = st.params[0]
-                drawingContext.setAngle(drawingContext.angle + a)
+                this.right(st.params[0],drawingContext);
             },
             "loop" : (st) => {
-                var iters = st.iterations;
-                while (iters > 0)
-                {
-                    st.statements.forEach(st => this.processStatement(st,drawingContext))
-                    iters--;
-                }
+                this.loop(st.iterations,st.statements,drawingContext);
+
             }
         }
 
@@ -35,6 +27,30 @@ class LogoProcessor
         else
         {
             console.log(`command ${st.action} not recognized`);
+        }
+    }
+
+    forward(len,drawingContext)
+    {
+        let x2 = drawingContext.lastX + len * Math.cos(drawingContext.radianAngle())
+        let y2 = drawingContext.lastY + len * Math.sin(drawingContext.radianAngle())
+        drawingContext.drawingObj().line(drawingContext.lastX, drawingContext.lastY, x2, y2).stroke({ color: "black",width: 1 }) 
+        drawingContext.lastPointIs(x2,y2);
+    }
+
+    right(angle,drawingContext)
+    {
+        drawingContext.setAngle(drawingContext.angle + angle)
+    }
+
+    loop(iterCount,statements,drawingContext)
+    {
+        assertNonNegativeNum(iterCount)
+        var iters = iterCount
+        while (iters > 0)
+        {
+            statements.forEach(st => this.processStatement(st,drawingContext))
+            iters--;
         }
     }
 }

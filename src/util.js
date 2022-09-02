@@ -23,8 +23,16 @@ function assertNotNull(val,msg)
         throw new Error(msg ? msg : `value is null`)
 }
 
+function assertNonNegativeNum(val,msg)
+{
+    assertIsNum(val);
+    if (val < 0)
+        throw new Error(msg ? msg : `${val} is negative`)
+}
+
 module.exports = {
     assertInRange,
     assertIsNum,
-    assertNotNull
+    assertNotNull,
+    assertNonNegativeNum
 }
