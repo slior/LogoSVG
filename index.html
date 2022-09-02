@@ -46,18 +46,18 @@
         return ret;
     }
 
-    function drawProgram(program,context)
+    function drawProgram(program)
     {
-        let p = new main.LogoProcessor.LogoProcessor();
-        program.statements.forEach(st => p.processStatement(st,context))
+        program.statements.forEach(st => painter.processStatement(st))
     }
+
+    var painter;
 
     function init()
     {
         let drawingBoard = document.getElementById('drawing')
-
-        let context = new main.DrawingContext.DrawingContext(100,100,0,drawingBoard);
-        drawProgram(getProgram(),context);
+        painter = main.newPainter(drawingBoard,100,100,0)
+        drawProgram(getProgram());
 
     }
 
