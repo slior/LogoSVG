@@ -1,6 +1,7 @@
 <html>
 <head>
-
+    <!-- Development version of Ohm from unpkg.com -->
+    <script src="https://unpkg.com/ohm-js@16/dist/ohm.js"></script>
     <script src="./main.js"></script>
 <script>
 
@@ -52,7 +53,14 @@
     {
         let drawingBoard = document.getElementById('drawing')
         painter = main.newPainter(drawingBoard,100,100,0)
-        drawProgram(getProgram());
+        
+    }
+
+    function parseAndExecuteProgram()
+    {
+        let code = document.getElementById('programCode').value;
+        let program = main.parseCode(code);
+        drawProgram ({ statements : program })
 
     }
 
@@ -62,6 +70,9 @@
 <body onload="init()">
 
     <div id="drawing" width="100%" style="border:1px solid black;height:50%"></div>
-
+    <hr/>
+    <h3>Program</h3>
+    <textarea id="programCode" style="width:80%;height:400px"></textarea>
+    <input type="button" value="Execute" onclick="parseAndExecuteProgram()" />
 </body>
 </html>
