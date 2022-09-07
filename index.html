@@ -58,10 +58,16 @@
 
     function parseAndExecuteProgram()
     {
+        clearDrawing();
         let code = document.getElementById('programCode').value;
         let program = main.parseCode(code);
         drawProgram ({ statements : program })
 
+    }
+
+    function clearDrawing()
+    {
+        painter.empty();
     }
 
 </script>

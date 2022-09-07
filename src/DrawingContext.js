@@ -20,6 +20,8 @@ class DrawingContext
         assertInRange(y,BOUNDS.Y_LOW,BOUNDS.Y_HIGH);
         assertInRange(_angle,BOUNDS.ANGLE_LOW,BOUNDS.ANGLE_HIGH);
         assertNotNull(drawingElement);
+        this.originalX = x;
+        this.originalY = y;
         this.lastX = x;
         this.lastY = y;
         this.angle = _angle;
@@ -47,6 +49,16 @@ class DrawingContext
         assertIsNum(a);
         a = a % BOUNDS.ANGLE_HIGH;
         this.angle = a;
+    }
+
+    empty()
+    {
+        let svgNode = this.draw.node;
+        while (svgNode.lastChild)
+            svgNode.removeChild(svgNode.lastChild)
+        
+        this.lastX = this.originalX
+        this.lastY = this.originalY
     }
 }
 

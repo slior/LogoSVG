@@ -15,6 +15,11 @@ class Painter
     {
         this.processor.processStatement(st,this.context);
     }
+
+    empty()
+    {
+        this.context.empty();
+    }
 }
 
 function newPainter(drawingContainer,startingX,startingY,startingAngle)
