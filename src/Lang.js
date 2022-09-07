@@ -51,11 +51,11 @@ export function createParser(commandsActions)
 {
     let logoSemantics = lang.createSemantics();
     logoSemantics.addOperation("toLogo()",{
-        forward(keyword, spaces, howMuch) { 
+        forward(_, __, howMuch) { 
             return commandsActions.createForward(howMuch.toLogo())
         },
     
-        right(keyword, spaces, howMuch) { 
+        right(_, __, howMuch) { 
             return commandsActions.createRight(howMuch.toLogo())
         }, 
     
