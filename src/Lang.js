@@ -23,11 +23,11 @@ export function createPrettyPrinter()
 {
     const semantics = lang.createSemantics();
     semantics.addOperation("code()",{
-        forward(keyword, spaces, howMuch) { 
+        forward(_, __, howMuch) { 
             return `Forward ${howMuch.sourceString}`
         },
     
-        right(keyword, spaces, howMuch) { return `Right ${howMuch.sourceString}`}, 
+        right(_, __, howMuch) { return `Right ${howMuch.sourceString}`}, 
     
         int(i) { return `${i.sourceString}`}, 
     
