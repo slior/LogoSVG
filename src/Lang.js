@@ -1,5 +1,7 @@
 
-import ohm from 'ohm-js'
+const _ohm = require('ohm-js')
+
+const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
 
 const g = String.raw`
@@ -19,7 +21,7 @@ const g = String.raw`
 const lang = ohm.grammar(g);
 
 
-export function createPrettyPrinter()
+function createPrettyPrinter()
 {
     const semantics = lang.createSemantics();
     semantics.addOperation("code()",{
@@ -47,7 +49,7 @@ export function createPrettyPrinter()
     })
 }
 
-export function createParser(commandsActions)
+function createParser(commandsActions)
 {
     let logoSemantics = lang.createSemantics();
     logoSemantics.addOperation("toLogo()",{
@@ -83,4 +85,8 @@ export function createParser(commandsActions)
         else
             throw new Error(`Failed to parse program: ${m.message}`)
     }
+}
+
+module.exports = {
+    createParser
 }
