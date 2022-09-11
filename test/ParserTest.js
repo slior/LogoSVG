@@ -1,5 +1,6 @@
 const assert = require('assert');
 const { createParser } = require("../src/Lang.js")
+const {Forward,Right, Program} = require("../src/IR")
 
 
 describe('Parser', function () {
@@ -16,14 +17,19 @@ describe('Parser', function () {
         fd 100
       `
 
-      let p = createParser({
-          createForward(howMuch) { assert.equal(howMuch,100); return { action : "fd", params : [howMuch]}; },
-          createRight(howMuch) { assert.equal(howMuch,90); return { action : "rt", params : [howMuch]}; }
-      })
+      let p = createParser()
 
       let result = p(testProgram)
-      assert.equal(result.length,7)
 
+      assert.deepEqual(result,new Program([
+        new Forward(100),
+        new Right(90),
+        new Forward(100),
+        new Right(90),
+        new Forward(100),
+        new Right(90),
+        new Forward(100)
+      ]))
     });
   });
 });

@@ -32,14 +32,7 @@ function newPainter(drawingContainer,startingX,startingY,startingAngle)
 
 function parseCode(programCode)
 {
-    let parser = createParser({
-        createForward(howMuch) {
-            return { action : "fd", params : [howMuch]};
-        },
-        createRight(howMuch) {
-            return { action : "rt", params : [howMuch]};
-        }
-    })
+    let parser = createParser()
 
     let program = parser(programCode);
     console.log(`Parsed program: ${JSON.stringify(program)}`)

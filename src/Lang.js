@@ -2,7 +2,7 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right} = require("./IR")
+const {Forward,Right, Program} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
@@ -49,17 +49,15 @@ function createPrettyPrinter()
     })
 }
 
-function createParser(commandsActions)
+function createParser()
 {
     let logoSemantics = lang.createSemantics();
     logoSemantics.addOperation("toLogo()",{
         forward(_, __, howMuch) { 
-            // return commandsActions.createForward(howMuch.toLogo())
             return new Forward(howMuch.toLogo())
         },
     
         right(_, __, howMuch) { 
-            // return commandsActions.createRight(howMuch.toLogo())
             return new Right(howMuch.toLogo())
         }, 
     
@@ -72,7 +70,7 @@ function createParser(commandsActions)
         Program( firstCommand,commands) {
             let first = firstCommand.children.length > 0 ? firstCommand.children[0].toLogo() : {}
             let restOfCode = commands.children.map(c => c.toLogo())
-            return [first, ...restOfCode];
+            return new Program([first, ...restOfCode]);
         }, 
     
         _iter(...commands) {

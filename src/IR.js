@@ -37,7 +37,43 @@ class Right extends Action
     }
 }
 
+class Block
+{
+    constructor(_stmts)
+    {
+        this._statements = _stmts || [];
+    }
+
+    get statements()
+    {
+        return this._statements;
+    }
+}
+
+class Loop extends Block
+{
+    constructor(_iterCount,_stmts)
+    {
+        assert(!isNaN(_iterCount),"iteration count must be a number");
+        super(_stmts)
+        this._iterCount = Math.max(0,_iterCount)
+    }
+
+    get iterCount() { return this._iterCount }
+}
+
+class Program extends Block
+{
+    constructor(_stmts)
+    {
+        super(_stmts)
+    }
+}
+
+
 module.exports = {
     Forward,
-    Right
+    Right,
+    Loop,
+    Program
 }
