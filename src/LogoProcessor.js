@@ -1,5 +1,6 @@
 
 const {assertNonNegativeNum} = require("./util")
+const {Forward,Right} = require("./IR")
 
 class LogoProcessor
 {
@@ -7,10 +8,10 @@ class LogoProcessor
     {
         let commands = {
             "fd" : (st) => { 
-                this.forward(st.params[0],drawingContext);
+                this.forward(st.howMuch,drawingContext);
             },
             "rt" : (st) => {
-                this.right(st.params[0],drawingContext);
+                this.right(st.howMuch,drawingContext);
             },
             "loop" : (st) => {
                 this.loop(st.iterations,st.statements,drawingContext);
