@@ -17,25 +17,34 @@ class Action
 
 class Forward extends Action
 {
-    constructor (_howMuch)
+    
+    constructor (__howMuch)
     {
-        super('fd')
-        assert(!isNaN(_howMuch),"_howMuch must be a number")
-        assert(_howMuch >= 0,"number of steps must be non-negative");
-        this.howMuch = _howMuch
+        super(Forward.action)
+        assert(!isNaN(__howMuch),"_howMuch must be a number")
+        assert(__howMuch >= 0,"number of steps must be non-negative");
+        this._howMuch = __howMuch
+    }
+
+    get howMuch()
+    {
+        return this._howMuch;
     }
 }
+
+Forward.action = 'fd'
 
 class Right extends Action
 {
     constructor(_howMuch)
     {
-        super('rt')
+        super(Right.action)
         assert(!isNaN(_howMuch),"_howMuch must be a number")
         assert(_howMuch >= 0,"angle must be non-negative");
         this.howMuch = _howMuch
     }
 }
+Right.action = 'rt'
 
 class Block
 {
@@ -61,6 +70,8 @@ class Loop extends Block
 
     get iterCount() { return this._iterCount }
 }
+
+Loop.action = 'loop'
 
 class Program extends Block
 {

@@ -51,37 +51,37 @@ function createPrettyPrinter()
 
 function createParser()
 {
-    let logoSemantics = lang.createSemantics();
-    logoSemantics.addOperation("toLogo()",{
+    let irBuilder = lang.createSemantics();
+    irBuilder.addOperation("asIR()",{
         forward(_, __, howMuch) { 
-            return new Forward(howMuch.toLogo())
+            return new Forward(howMuch.asIR())
         },
     
         right(_, __, howMuch) { 
-            return new Right(howMuch.toLogo())
+            return new Right(howMuch.asIR())
         }, 
     
         int(i) { return parseInt(i.sourceString)}, 
     
         Command(c) {
-            return c.toLogo();
+            return c.asIR();
         },
     
         Program( firstCommand,commands) {
-            let first = firstCommand.children.length > 0 ? firstCommand.children[0].toLogo() : {}
-            let restOfCode = commands.children.map(c => c.toLogo())
+            let first = firstCommand.children.length > 0 ? firstCommand.children[0].asIR() : {}
+            let restOfCode = commands.children.map(c => c.asIR())
             return new Program([first, ...restOfCode]);
         }, 
     
         _iter(...commands) {
-            return commands.map(c => c.toLogo())
+            return commands.map(c => c.asIR())
         }
     })
     
     return (programText) => {
         let m = lang.match(programText);
         if (m.succeeded())
-            return logoSemantics(m).toLogo();
+            return irBuilder(m).asIR();
         else
             throw new Error(`Failed to parse program: ${m.message}`)
     }

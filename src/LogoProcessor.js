@@ -1,24 +1,27 @@
 
 const {assertNonNegativeNum} = require("./util")
-const {Forward,Right} = require("./IR")
+const {Forward,Right, Loop} = require("./IR")
+
+const COMMAND_MAP = null;
+
+function commandMap(processor,drawingContext)
+{
+    if (!COMMAND_MAP)
+    {
+        let commands = {}
+        commands[Forward.action] = (st) => { processor.forward(st.howMuch,drawingContext); }
+        commands[Right.action] = (st) => { processor.right(st.howMuch,drawingContext); }
+        commands[Loop.action] = (st) => { processor.loop(st.iterCount,st.statements,drawingContext); }
+        COMMAND_MAP = commands;
+    }
+    return COMMAND_MAP
+}
 
 class LogoProcessor
 {
     processStatement(st, drawingContext)
     {
-        let commands = {
-            "fd" : (st) => { 
-                this.forward(st.howMuch,drawingContext);
-            },
-            "rt" : (st) => {
-                this.right(st.howMuch,drawingContext);
-            },
-            "loop" : (st) => {
-                this.loop(st.iterations,st.statements,drawingContext);
-
-            }
-        }
-
+        let commands = commandMap(this,drawingContext);
         let cmd = commands[st.action];
         if (cmd)
         {
