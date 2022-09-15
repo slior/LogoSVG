@@ -6,14 +6,16 @@ const {Forward,Right, Program} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
-        Program = Command? (~";" Command)*
+        Program = CommandList
         
         Command = forward | right
+        CommandList = Command? (~";" Command)*
           
-  
         forward = "fd" spaces int
         right = "rt" spaces int
         int = digit+
+
+        //loop = "repeat" spaces int CommandList "end"
     }
 `
 
@@ -67,11 +69,15 @@ function createParser()
             return c.asIR();
         },
     
-        Program( firstCommand,commands) {
+        CommandList( firstCommand,commands) {
             let first = firstCommand.children.length > 0 ? firstCommand.children[0].asIR() : {}
             let restOfCode = commands.children.map(c => c.asIR())
-            return new Program([first, ...restOfCode]);
+            return [first, ...restOfCode];
         }, 
+
+        Program(commandList) {
+            return new Program(commandList.asIR())
+        },
     
         _iter(...commands) {
             return commands.map(c => c.asIR())
