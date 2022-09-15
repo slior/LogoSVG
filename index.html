@@ -3,42 +3,6 @@
     <script src="./main.js"></script>
 <script>
 
-    
-
-    function getProgram() 
-    {
-        let ret = {
-            statements : [
-                { action : "fd", params : [50]},
-                { action : "rt", params : [90]},
-                { action : "fd", params : [50]},
-                { action : "rt", params : [90]},
-                { action : "fd", params : [50]},
-                { action : "rt", params : [90]},
-                { action : "fd", params : [50]},
-                { action : "rt", params : [90]},
-
-                { action: "rt", params: [45]},
-
-                {
-                    action : "loop",
-                    iterations : 5,
-                    statements : [
-                            {
-                                action : "loop",
-                                iterations : 4,
-                                statements : [
-                                    { action : "fd", params : [50]},
-                                    { action : "rt", params : [95]},
-                                ]
-                            },
-                            { action : "rt", params : [45]}
-                    ]
-                }
-            ]
-        }
-        return ret;
-    }
 
     function drawProgram(program)
     {
