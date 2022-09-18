@@ -2,7 +2,7 @@
 const {assertNonNegativeNum} = require("./util")
 const {Forward,Right, Loop} = require("./IR")
 
-const COMMAND_MAP = null;
+var COMMAND_MAP = null;
 
 function commandMap(processor,drawingContext)
 {

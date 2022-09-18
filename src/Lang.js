@@ -2,20 +2,20 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right, Program} = require("./IR")
+const {Forward,Right, Program, Loop} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
         Program = CommandList
         
-        Command = forward | right
+        Command = forward | right | Loop
         CommandList = Command? (~";" Command)*
           
         forward = "fd" spaces int
         right = "rt" spaces int
         int = digit+
 
-        //loop = "repeat" spaces int CommandList "end"
+        Loop = "repeat" spaces int CommandList "end"
     }
 `
 
@@ -81,6 +81,10 @@ function createParser()
     
         _iter(...commands) {
             return commands.map(c => c.asIR())
+        }
+
+        , Loop(_, __, iters,commandList,___) {
+            return new Loop(iters.asIR(),commandList.asIR())
         }
     })
     

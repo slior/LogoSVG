@@ -59,16 +59,19 @@ class Block
     }
 }
 
-class Loop extends Block
+
+class Loop extends Action
 {
     constructor(_iterCount,_stmts)
     {
+        super(Loop.action)
         assert(!isNaN(_iterCount),"iteration count must be a number");
-        super(_stmts)
+        this.block = new Block(_stmts);
         this._iterCount = Math.max(0,_iterCount)
     }
 
     get iterCount() { return this._iterCount }
+    get statements() { return this.block.statements }
 }
 
 Loop.action = 'loop'
