@@ -3,19 +3,12 @@
     <script src="./main.js"></script>
 <script>
 
-
-    function drawProgram(program)
-    {
-        program.statements.forEach(st => painter.processStatement(st))
-    }
-
     var painter;
 
     function init()
     {
         let drawingBoard = document.getElementById('drawing')
-        painter = main.newPainter(drawingBoard,100,100,0)
-        
+        painter = main.newPainter(drawingBoard,100,100,270)
     }
 
     function parseAndExecuteProgram()
@@ -23,8 +16,7 @@
         clearDrawing();
         let code = document.getElementById('programCode').value;
         let program = main.parseCode(code);
-        drawProgram (program)
-
+        painter.processProgram(program);
     }
 
     function clearDrawing()
