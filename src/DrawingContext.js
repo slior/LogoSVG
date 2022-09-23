@@ -11,6 +11,8 @@ const BOUNDS = {
     ANGLE_HIGH : 360
 }
 
+const DEFAULT_PEN_COLOR = "black";
+
 
 class DrawingContext
 {
@@ -26,6 +28,7 @@ class DrawingContext
         this.lastY = y;
         this.angle = _angle;
         this.draw = SVG().addTo(drawingElement).size('100%', '100%');
+        this._penColor = DEFAULT_PEN_COLOR
     }
 
     radianAngle()
@@ -60,6 +63,9 @@ class DrawingContext
         this.lastX = this.originalX
         this.lastY = this.originalY
     }
+
+    get penColor() { return this._penColor; }
+    set penColor(c) { this._penColor = c }
 }
 
 module.exports = {

@@ -46,6 +46,18 @@ class Right extends Action
 }
 Right.action = 'rt'
 
+class SetPenColor extends Action
+{
+    constructor(newColor)
+    {
+        super(SetPenColor.action)
+        this.penColor = newColor;
+    }
+
+    get color() { return this.penColor }
+}
+SetPenColor.action = "pc"
+
 class Block
 {
     constructor(_stmts)
@@ -89,5 +101,6 @@ module.exports = {
     Forward,
     Right,
     Loop,
-    Program
+    Program,
+    SetPenColor
 }

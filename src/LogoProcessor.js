@@ -1,6 +1,6 @@
 
 const {assertNonNegativeNum} = require("./util")
-const {Forward,Right, Loop} = require("./IR")
+const {Forward,Right, Loop, SetPenColor} = require("./IR")
 
 var COMMAND_MAP = null;
 
@@ -12,6 +12,7 @@ function commandMap(processor,drawingContext)
         commands[Forward.action] = (st) => { processor.forward(st.howMuch,drawingContext); }
         commands[Right.action] = (st) => { processor.right(st.howMuch,drawingContext); }
         commands[Loop.action] = (st) => { processor.loop(st.iterCount,st.statements,drawingContext); }
+        commands[SetPenColor.action] = (st) => { processor.setPenColor(st.penColor, drawingContext); }
         COMMAND_MAP = commands;
     }
     return COMMAND_MAP
@@ -38,7 +39,7 @@ class LogoProcessor
     {
         let x2 = drawingContext.lastX + len * Math.cos(drawingContext.radianAngle())
         let y2 = drawingContext.lastY + len * Math.sin(drawingContext.radianAngle())
-        drawingContext.drawingObj().line(drawingContext.lastX, drawingContext.lastY, x2, y2).stroke({ color: "black",width: 1 }) 
+        drawingContext.drawingObj().line(drawingContext.lastX, drawingContext.lastY, x2, y2).stroke({ color: drawingContext.penColor,width: 1 }) 
         drawingContext.lastPointIs(x2,y2);
     }
 
@@ -56,6 +57,11 @@ class LogoProcessor
             statements.forEach(st => this.processStatement(st,drawingContext))
             iters--;
         }
+    }
+
+    setPenColor(color,drawingContext)
+    {
+        drawingContext.penColor = color
     }
 }
 

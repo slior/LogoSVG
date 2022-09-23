@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { createParser } = require("../src/Lang.js")
-const {Forward,Right, Program, Loop} = require("../src/IR")
+const {Forward,Right, Program, Loop,SetPenColor} = require("../src/IR")
 
 
 describe('Parser', function () {
@@ -49,6 +49,26 @@ describe('Parser', function () {
           new Right(90)
         ])
       ]))
-    })
+    });
+
+    it ('Can parse a pen color statement',function() {
+      let testProgram = String.raw`
+          fd 100
+          rt 90
+          pc red
+          fd 100
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      assert.deepEqual(result,new Program([
+        new Forward(100),
+        new Right(90),
+        new SetPenColor("red"),
+        new Forward(100)
+
+      ]))
+    });
   });
 });
