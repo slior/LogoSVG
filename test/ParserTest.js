@@ -70,5 +70,31 @@ describe('Parser', function () {
 
       ]))
     });
+
+    it('Can parse a nested loop', function() {
+      let testProgram = String.raw`
+          repeat 6
+            repeat 4
+              fd 50
+              rt 90
+            end
+            rt 45
+          end
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      assert.deepEqual(result,new Program([
+        new Loop(6,[
+          new Loop(4,[
+            new Forward(50),
+            new Right(90)
+          ]),
+          new Right(45)
+        ])
+      ]))
+
+    })
   });
 });
