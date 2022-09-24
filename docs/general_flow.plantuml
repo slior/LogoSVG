@@ -1,0 +1,62 @@
+@startuml
+skinparam linestyle ortho
+
+participant App as C
+participant Main as M
+participant Parser as Pr
+participant Painter as Pn
+participant Processor as Proc
+
+[-> C: init
+C -> M: createPainter(container,startX,startY,startAngle)
+create Proc
+note right: also creates the drawing context
+M -> Proc: new
+create Pn
+M -> Pn: new(processor,context)
+note over Pn
+  Maintains:
+  1. The processor
+  2. The drawing context/state
+  3. The cursor
+end note
+C <-- M: Painter
+[<-- C: //done//
+
+
+[-> C: parseAndExecuteProgram
+
+C -> C: getCode
+
+C -> M: parseCode(code)
+
+create Pr
+M -> Pr: new
+
+M -> Pr: parse(code)
+Pr --> M: program
+M --> C: program
+C -> Pn: processProgram(program)
+loop for each statement **st** in program
+  Pn -> Proc: process statement (st,context)
+  note right
+    change drawing context, 
+    possibly creating new SVG elements
+  end note
+
+  note over Proc
+    for nested statements
+  end note
+  loop for each nested statement
+    Proc -> Proc: process statement(st,context)
+  end
+end
+
+Pn <-- Proc:   
+C <-- Pn:   
+
+[<-- C: //done//
+
+
+
+@enduml
