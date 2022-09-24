@@ -40,7 +40,7 @@ class Right extends Action
     {
         super(Right.action)
         assert(!isNaN(_howMuch),"_howMuch must be a number")
-        assert(_howMuch >= 0,"angle must be non-negative");
+        assert(_howMuch >= 0,"angle must be non-negative: " + _howMuch);
         this.howMuch = _howMuch
     }
 }

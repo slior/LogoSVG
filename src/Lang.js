@@ -8,11 +8,12 @@ const g = String.raw`
     LogoSVG {
         Program = CommandList
         
-        Command = forward | right | Loop | pen_color
+        Command = forward | right | left | Loop | pen_color
         CommandList = Command? (~";" Command)*
           
         forward = "fd" spaces int
         right = "rt" spaces int
+        left = "lt" spaces int
         pen_color = "pc" spaces color_name
         color_name = alnum+ //should be any color allowed in the SVG styling
         int = digit+
@@ -65,6 +66,11 @@ function createParser()
             return new Right(howMuch.asIR())
         }, 
 
+        left(_,__,howMuch) {
+            //note: rewriting left as a right statement
+            let angle = howMuch.asIR();
+            return new Right(360 - angle)
+        },
         pen_color(_,__,color) {
             return new SetPenColor(color.asIR())
         },

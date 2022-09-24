@@ -95,6 +95,26 @@ describe('Parser', function () {
         ])
       ]))
 
+    });
+
+    it ("Can parse a 'left' as an opposite of 'right'", function() {
+      let testProgram = String.raw`
+        fd 50
+        rt 90
+        lt 45
+        fd 50
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      assert.deepEqual(result,new Program([
+        new Forward(50),
+        new Right(90)
+        , new Right(360-45)
+        , new Forward(50)
+      ]))
+
     })
   });
 });
