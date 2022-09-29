@@ -1,5 +1,5 @@
 
-const { LogoProcessor } = require("./LogoProcessor.js")
+const { LogoVM } = require("./LogoVM.js")
 
 const CURSOR_SIZE = 10;
 
@@ -11,10 +11,9 @@ function radians(deg)
 
 class ProgramRunner
 {
-    // constructor(processor,context)
     constructor(context)
     {
-        this.processor = new LogoProcessor();
+        this.vm = new LogoVM();
         this.context = context;
         this.cursorObj = this.createCursor(this.context);
         this.moveCursorToContext()
@@ -46,7 +45,7 @@ class ProgramRunner
 
     processStatement(st)
     {
-        this.processor.processStatement(st,this.context);
+        this.vm.processStatement(st,this.context);
     }
 
     empty()

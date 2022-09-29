@@ -18,7 +18,7 @@ function commandMap(processor,drawingContext)
     return COMMAND_MAP
 }
 
-class LogoProcessor
+class LogoVM
 {
     processStatement(st, drawingContext)
     {
@@ -67,5 +67,5 @@ class LogoProcessor
 
 
 module.exports = {
-    LogoProcessor
+    LogoVM
 }
