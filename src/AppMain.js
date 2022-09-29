@@ -2,13 +2,13 @@
 // const { LogoProcessor } = require("./LogoProcessor.js")
 const { DrawingContext } = require("./DrawingContext.js")
 const { createParser } = require("./Lang")
-const { Painter } = require("./Painter")
+const { ProgramRunner } = require("./ProgramRunner")
 
 
 function initApp(drawingContainer,startingX,startingY,startingAngle)
 {
     let context = new DrawingContext(startingX,startingY,startingAngle,drawingContainer);
-    return new Painter(context);
+    return new ProgramRunner(context);
 }
 
 function parseCode(programCode)

@@ -9,7 +9,7 @@ function radians(deg)
 }
 
 
-class Painter
+class ProgramRunner
 {
     // constructor(processor,context)
     constructor(context)
@@ -37,7 +37,7 @@ class Painter
         return dc.drawingObj().polygon(points).fill('red').stroke({ width: 1 })
     }
 
-    processProgram(program)
+    run(program)
     {
         program.statements.forEach(st => this.processStatement(st))
         this.moveCursorToContext()
@@ -69,4 +69,4 @@ class Painter
     }
 }
 
-module.exports = { Painter}
+module.exports = { ProgramRunner }
