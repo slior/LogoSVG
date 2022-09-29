@@ -1,4 +1,6 @@
 
+const { LogoProcessor } = require("./LogoProcessor.js")
+
 const CURSOR_SIZE = 10;
 
 function radians(deg)
@@ -9,9 +11,10 @@ function radians(deg)
 
 class Painter
 {
-    constructor(processor,context)
+    // constructor(processor,context)
+    constructor(context)
     {
-        this.processor = processor;
+        this.processor = new LogoProcessor();
         this.context = context;
         this.cursorObj = this.createCursor(this.context);
         this.moveCursorToContext()

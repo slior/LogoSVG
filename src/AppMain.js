@@ -1,15 +1,14 @@
 
-const { LogoProcessor } = require("./LogoProcessor.js")
+// const { LogoProcessor } = require("./LogoProcessor.js")
 const { DrawingContext } = require("./DrawingContext.js")
 const { createParser } = require("./Lang")
 const { Painter } = require("./Painter")
 
 
-function newPainter(drawingContainer,startingX,startingY,startingAngle)
+function initApp(drawingContainer,startingX,startingY,startingAngle)
 {
     let context = new DrawingContext(startingX,startingY,startingAngle,drawingContainer);
-    let p = new LogoProcessor();
-    return new Painter(p,context);
+    return new Painter(context);
 }
 
 function parseCode(programCode)
@@ -17,11 +16,10 @@ function parseCode(programCode)
     let parser = createParser()
 
     let program = parser(programCode);
-    // console.log(`Parsed program: ${JSON.stringify(program)}`)
     return program;
 }
 
 module.exports = {
-    newPainter,
+    initApp,
     parseCode
 }
