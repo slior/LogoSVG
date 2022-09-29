@@ -36,7 +36,6 @@ class Painter
 
     processProgram(program)
     {
-        this.empty();
         program.statements.forEach(st => this.processStatement(st))
         this.moveCursorToContext()
 
@@ -55,10 +54,15 @@ class Painter
 
     moveCursorToContext()
     {
-        this.cursorObj.center(this.context.lastX,this.context.lastY)
-        let currentCursorAngle = this.cursorObj.transform().rotate;
-        let dAngle = this.context.angle - currentCursorAngle;
-        this.cursorObj.rotate(dAngle);
+        let lastCursorX = this.cursorObj.cx()
+        let lastCursorY = this.cursorObj.cy()
+        let dx = this.context.lastX - lastCursorX
+        let dy = this.context.lastY - lastCursorY
+        this.cursorObj.transform({
+            translateX : dx,
+            translateY : dy,
+            rotate : this.context.angle
+        })
     }
 }
 
