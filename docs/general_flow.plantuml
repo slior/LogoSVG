@@ -1,26 +1,29 @@
 @startuml
 skinparam linestyle ortho
 
-participant App as C
-participant Main as M
-participant Parser as Pr
-participant Painter as Pn
-participant Processor as Proc
+participant AppUI as C
+participant Application as M
+participant Compiler as Comp
+participant ProgramRunner as runner
+participant LogoVM as Proc
 
 [-> C: init
-C -> M: createPainter(container,startX,startY,startAngle)
-create Proc
-note right: also creates the drawing context
-M -> Proc: new
-create Pn
-M -> Pn: new(processor,context)
-note over Pn
+C -> M: initApp(container,startX,startY,startAngle)
+M -> M: create VM State
+
+create runner
+M -> runner: new(vmState, container)
+note over runner
   Maintains:
-  1. The processor
-  2. The drawing context/state
+  1. The VM
+  2. The VM state
   3. The cursor
 end note
-C <-- M: Painter
+
+create Proc
+runner -> Proc: new
+
+C <-- M: runner
 [<-- C: //done//
 
 
@@ -30,17 +33,17 @@ C -> C: getCode
 
 C -> M: parseCode(code)
 
-create Pr
-M -> Pr: new
+create Comp
+M -> Comp: new
 
-M -> Pr: parse(code)
-Pr --> M: program
+M -> Comp: parse(code)
+Comp --> M: program
 M --> C: program
-C -> Pn: processProgram(program)
+C -> runner: run(program)
 loop for each statement **st** in program
-  Pn -> Proc: process statement (st,context)
+  runner -> Proc: process statement (st,vm state)
   note right
-    change drawing context, 
+    change vm state, 
     possibly creating new SVG elements
   end note
 
@@ -48,12 +51,12 @@ loop for each statement **st** in program
     for nested statements
   end note
   loop for each nested statement
-    Proc -> Proc: process statement(st,context)
+    Proc -> Proc: process statement(st,vm state)
   end
 end
 
-Pn <-- Proc:   
-C <-- Pn:   
+runner <-- Proc:   
+C <-- runner:   
 
 [<-- C: //done//
 

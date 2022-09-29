@@ -11,9 +11,9 @@ function radians(deg)
 
 class ProgramRunner
 {
-    constructor(context)
+    constructor(context,_drawingElement)
     {
-        this.vm = new LogoVM();
+        this.vm = new LogoVM(_drawingElement);
         this.context = context;
         this.cursorObj = this.createCursor(this.context);
         this.moveCursorToContext()
@@ -33,7 +33,7 @@ class ProgramRunner
         
         let points = `${x1},${y1} ${x2},${y2} ${x3},${y3} ${x1},${y1}`
         
-        return dc.drawingObj().polygon(points).fill('red').stroke({ width: 1 })
+        return this.vm.drawingObj.polygon(points).fill('red').stroke({ width: 1 })
     }
 
     run(program)
@@ -50,8 +50,8 @@ class ProgramRunner
 
     empty()
     {
-        this.context.drawingObj().clear();
-        this.context.drawingObj().add(this.cursorObj);
+        this.vm.clearDrawing()
+        this.vm.drawingObj.add(this.cursorObj)
     }
 
     moveCursorToContext()

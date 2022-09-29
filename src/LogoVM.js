@@ -1,18 +1,19 @@
 
-const {assertNonNegativeNum} = require("./util")
+const { SVG } = require('@svgdotjs/svg.js')
+const {assertNonNegativeNum,assertNotNull} = require("./util")
 const {Forward,Right, Loop, SetPenColor} = require("./IR")
 
 var COMMAND_MAP = null;
 
-function commandMap(processor,drawingContext)
+function commandMap(processor,vmState)
 {
     if (!COMMAND_MAP)
     {
         let commands = {}
-        commands[Forward.action] = (st) => { processor.forward(st.howMuch,drawingContext); }
-        commands[Right.action] = (st) => { processor.right(st.howMuch,drawingContext); }
-        commands[Loop.action] = (st) => { processor.loop(st.iterCount,st.statements,drawingContext); }
-        commands[SetPenColor.action] = (st) => { processor.setPenColor(st.penColor, drawingContext); }
+        commands[Forward.action] = (st) => { processor.forward(st.howMuch,vmState); }
+        commands[Right.action] = (st) => { processor.right(st.howMuch,vmState); }
+        commands[Loop.action] = (st) => { processor.loop(st.iterCount,st.statements,vmState); }
+        commands[SetPenColor.action] = (st) => { processor.setPenColor(st.penColor, vmState); }
         COMMAND_MAP = commands;
     }
     return COMMAND_MAP
@@ -20,9 +21,24 @@ function commandMap(processor,drawingContext)
 
 class LogoVM
 {
-    processStatement(st, drawingContext)
+    constructor(drawingElement)
     {
-        let commands = commandMap(this,drawingContext);
+        assertNotNull(drawingElement);
+        this.draw = SVG().addTo(drawingElement).size('100%', '100%');
+    }
+
+    get drawingObj() {
+        return this.draw
+    }
+
+    clearDrawing()
+    {
+        this.drawingObj.clear();
+    }
+
+    processStatement(st, vmState)
+    {
+        let commands = commandMap(this,vmState);
         let cmd = commands[st.action];
         if (cmd)
         {
@@ -35,33 +51,33 @@ class LogoVM
         }
     }
 
-    forward(len,drawingContext)
+    forward(len,vmState)
     {
-        let x2 = drawingContext.lastX + len * Math.cos(drawingContext.radianAngle())
-        let y2 = drawingContext.lastY + len * Math.sin(drawingContext.radianAngle())
-        drawingContext.drawingObj().line(drawingContext.lastX, drawingContext.lastY, x2, y2).stroke({ color: drawingContext.penColor,width: 1 }) 
-        drawingContext.lastPointIs(x2,y2);
+        let x2 = vmState.lastX + len * Math.cos(vmState.radianAngle())
+        let y2 = vmState.lastY + len * Math.sin(vmState.radianAngle())
+        this.drawingObj.line(vmState.lastX, vmState.lastY, x2, y2).stroke({ color: vmState.penColor,width: 1 }) 
+        vmState.lastPointIs(x2,y2);
     }
 
-    right(angle,drawingContext)
+    right(angle,vmState)
     {
-        drawingContext.setAngle(drawingContext.angle + angle)
+        vmState.setAngle(vmState.angle + angle)
     }
 
-    loop(iterCount,statements,drawingContext)
+    loop(iterCount,statements,vmState)
     {
         assertNonNegativeNum(iterCount)
         var iters = iterCount
         while (iters > 0)
         {
-            statements.forEach(st => this.processStatement(st,drawingContext))
+            statements.forEach(st => this.processStatement(st,vmState))
             iters--;
         }
     }
 
-    setPenColor(color,drawingContext)
+    setPenColor(color,vmState)
     {
-        drawingContext.penColor = color
+        vmState.penColor = color
     }
 }
 
