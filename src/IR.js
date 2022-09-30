@@ -58,6 +58,18 @@ class SetPenColor extends Action
 }
 SetPenColor.action = "pc"
 
+class PenActive extends Action
+{
+    constructor(isUp)
+    {
+        super(PenActive.action);
+        this.active = isUp;
+    }
+
+    get isActive() { return this.active }
+}
+PenActive.action = "pa"
+
 class Block
 {
     constructor(_stmts)
@@ -102,5 +114,6 @@ module.exports = {
     Right,
     Loop,
     Program,
-    SetPenColor
+    SetPenColor,
+    PenActive
 }

@@ -1,7 +1,7 @@
 
 const { SVG } = require('@svgdotjs/svg.js')
 const {assertNonNegativeNum,assertNotNull} = require("./util")
-const {Forward,Right, Loop, SetPenColor} = require("./IR")
+const {Forward,Right, Loop, SetPenColor, PenActive} = require("./IR")
 
 var COMMAND_MAP = null;
 
@@ -14,6 +14,7 @@ function commandMap(processor,vmState)
         commands[Right.action] = (st) => { processor.right(st.howMuch,vmState); }
         commands[Loop.action] = (st) => { processor.loop(st.iterCount,st.statements,vmState); }
         commands[SetPenColor.action] = (st) => { processor.setPenColor(st.penColor, vmState); }
+        commands[PenActive.action] = (st) => { processor.setPenActive(st.isActive, vmState); }
         COMMAND_MAP = commands;
     }
     return COMMAND_MAP
@@ -55,7 +56,8 @@ class LogoVM
     {
         let x2 = vmState.lastX + len * Math.cos(vmState.radianAngle())
         let y2 = vmState.lastY + len * Math.sin(vmState.radianAngle())
-        this.drawingObj.line(vmState.lastX, vmState.lastY, x2, y2).stroke({ color: vmState.penColor,width: 1 }) 
+        if (vmState.penActive)
+            this.drawingObj.line(vmState.lastX, vmState.lastY, x2, y2).stroke({ color: vmState.penColor,width: 1 }) 
         vmState.lastPointIs(x2,y2);
     }
 
@@ -78,6 +80,11 @@ class LogoVM
     setPenColor(color,vmState)
     {
         vmState.penColor = color
+    }
+
+    setPenActive(isActive,vmState)
+    {
+        vmState.penActive = isActive
     }
 }
 

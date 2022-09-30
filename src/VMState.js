@@ -26,6 +26,7 @@ class VMState
         this.lastY = y;
         this.angle = _angle;
         this._penColor = DEFAULT_PEN_COLOR
+        this.penActive = true
     }
 
     radianAngle()
@@ -48,6 +49,9 @@ class VMState
 
     get penColor() { return this._penColor; }
     set penColor(c) { this._penColor = c }
+
+    get penActive() { return this._penActive }
+    set penActive(b) {this._penActive = b}
 }
 
 module.exports = {

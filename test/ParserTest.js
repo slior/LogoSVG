@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { createParser } = require("../src/Lang.js")
-const {Forward,Right, Program, Loop,SetPenColor} = require("../src/IR")
+const {Forward,Right, Program, Loop,SetPenColor, PenActive} = require("../src/IR")
 
 
 describe('Parser', function () {
@@ -115,6 +115,31 @@ describe('Parser', function () {
         , new Forward(50)
       ]))
 
+    });
+
+    it("Can parse a pen up and down statements correctly", function() {
+      let testProgram = String.raw`
+        fd 50
+        pu
+        fd 50
+        pd
+        fd 50
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      let expectedProgram = new Program([
+        new Forward(50),
+        new PenActive(false),
+        new Forward(50),
+        new PenActive(true),
+        new Forward(50)
+      ])
+
+      assert.equal(expectedProgram.statements[1].isActive,false)
+
+      assert.deepEqual(result,expectedProgram)
     })
   });
 });
