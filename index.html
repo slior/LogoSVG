@@ -13,10 +13,14 @@
 
     function parseAndExecuteProgram()
     {
-        clearDrawing();
         let code = document.getElementById('programCode').value;
         let program = main.parseCode(code);
         runner.run(program);
+    }
+
+    function reset()
+    {
+        main.resetState();
     }
 
     function clearDrawing()
@@ -34,5 +38,6 @@
     <h3>Program</h3>
     <textarea id="programCode" style="width:80%;height:400px"></textarea>
     <input type="button" value="Execute" onclick="parseAndExecuteProgram()" />
+    <input type="button" value="Reset" onclick="reset()" />
 </body>
 </html>

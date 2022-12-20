@@ -66,6 +66,14 @@ class ProgramRunner
             rotate : this.context.angle
         })
     }
+
+    resetTo(newState)
+    {//todo: validate input
+        this.empty();
+        this.context = newState
+        this.moveCursorToContext();
+    }
+
 }
 
 module.exports = { ProgramRunner }

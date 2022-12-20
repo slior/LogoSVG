@@ -5,16 +5,16 @@ const {Forward,Right, Loop, SetPenColor, PenActive} = require("./IR")
 
 var COMMAND_MAP = null;
 
-function commandMap(processor,vmState)
+function commandMap(processor)
 {
     if (!COMMAND_MAP)
     {
         let commands = {}
-        commands[Forward.action] = (st) => { processor.forward(st.howMuch,vmState); }
-        commands[Right.action] = (st) => { processor.right(st.howMuch,vmState); }
-        commands[Loop.action] = (st) => { processor.loop(st.iterCount,st.statements,vmState); }
-        commands[SetPenColor.action] = (st) => { processor.setPenColor(st.penColor, vmState); }
-        commands[PenActive.action] = (st) => { processor.setPenActive(st.isActive, vmState); }
+        commands[Forward.action] = (st,vms) => { processor.forward(st.howMuch,vms); }
+        commands[Right.action] = (st,vms) => { processor.right(st.howMuch,vms); }
+        commands[Loop.action] = (st,vms) => { processor.loop(st.iterCount,st.statements,vms); }
+        commands[SetPenColor.action] = (st,vms) => { processor.setPenColor(st.penColor, vms); }
+        commands[PenActive.action] = (st,vms) => { processor.setPenActive(st.isActive, vms); }
         COMMAND_MAP = commands;
     }
     return COMMAND_MAP
@@ -39,12 +39,12 @@ class LogoVM
 
     processStatement(st, vmState)
     {
-        let commands = commandMap(this,vmState);
+        let commands = commandMap(this);
         let cmd = commands[st.action];
         if (cmd)
         {
             // console.log(`Executing: ${st.action}, ${JSON.stringify(st)}`)
-            cmd.apply(this,[st])
+            cmd.apply(this,[st,vmState])
         }
         else
         {
