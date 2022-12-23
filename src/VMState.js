@@ -76,5 +76,6 @@ class VMState
 }
 
 module.exports = {
-    VMState
+    VMState,
+    DEFAULT_PEN_COLOR //for testing, otherwise don't see a reason to expose this (maybe move it?)
 }
