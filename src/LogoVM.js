@@ -10,11 +10,11 @@ function commandMap(processor)
     if (!COMMAND_MAP)
     {
         let commands = {}
-        commands[Forward.action] = (st,vms) => { processor.forward(st.howMuch,vms); }
-        commands[Right.action] = (st,vms) => { processor.right(st.howMuch,vms); }
-        commands[Loop.action] = (st,vms) => { processor.loop(st.iterCount,st.statements,vms); }
-        commands[SetPenColor.action] = (st,vms) => { processor.setPenColor(st.penColor, vms); }
-        commands[PenActive.action] = (st,vms) => { processor.setPenActive(st.isActive, vms); }
+        commands[Forward.action] = (st,vms) => { return processor.forward(st.howMuch,vms); }
+        commands[Right.action] = (st,vms) => { return processor.right(st.howMuch,vms); }
+        commands[Loop.action] = (st,vms) => { return processor.loop(st.iterCount,st.statements,vms); }
+        commands[SetPenColor.action] = (st,vms) => { return processor.setPenColor(st.penColor, vms); }
+        commands[PenActive.action] = (st,vms) => { return processor.setPenActive(st.isActive, vms); }
         COMMAND_MAP = commands;
     }
     return COMMAND_MAP
@@ -44,11 +44,12 @@ class LogoVM
         if (cmd)
         {
             // console.log(`Executing: ${st.action}, ${JSON.stringify(st)}`)
-            cmd.apply(this,[st,vmState])
+            return cmd.apply(this,[st,vmState])
         }
         else
         {
             console.log(`command ${st.action} not recognized`);
+            return vmState;
         }
     }
 
@@ -58,33 +59,35 @@ class LogoVM
         let y2 = vmState.lastY + len * Math.sin(vmState.radianAngle())
         if (vmState.penActive)
             this.drawingObj.line(vmState.lastX, vmState.lastY, x2, y2).stroke({ color: vmState.penColor,width: 1 }) 
-        vmState.lastPointIs(x2,y2);
+        return vmState.withLastPoint(x2,y2);
     }
 
     right(angle,vmState)
     {
-        vmState.setAngle(vmState.angle + angle)
+        return vmState.withAngle(vmState.angle + angle)
     }
 
     loop(iterCount,statements,vmState)
     {
         assertNonNegativeNum(iterCount)
         var iters = iterCount
+        var stateForIteration = vmState
         while (iters > 0)
         {
-            statements.forEach(st => this.processStatement(st,vmState))
+            stateForIteration = statements.reduce((lastState,st) => this.processStatement(st,lastState), stateForIteration)
             iters--;
         }
+        return stateForIteration; //this is the result of executing the last iteration
     }
 
     setPenColor(color,vmState)
     {
-        vmState.penColor = color
+        return vmState.withPenColor(color)
     }
 
     setPenActive(isActive,vmState)
     {
-        vmState.penActive = isActive
+        return vmState.withPenActive(isActive)
     }
 }
 

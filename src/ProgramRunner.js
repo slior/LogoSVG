@@ -45,7 +45,7 @@ class ProgramRunner
 
     processStatement(st)
     {
-        this.vm.processStatement(st,this.context);
+        this.context = this.vm.processStatement(st,this.context); //todo: consider keeping a stack of vm states
     }
 
     empty()

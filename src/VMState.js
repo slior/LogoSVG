@@ -1,5 +1,5 @@
 
-const { assertInRange,assertIsNum } = require('./util.js')
+const { assertInRange,assertIsNum, ifUndefined } = require('./util.js')
 
 const BOUNDS = {
     X_LOW : 0,
@@ -13,45 +13,66 @@ const BOUNDS = {
 const DEFAULT_PEN_COLOR = "black";
 
 
+
 class VMState
 {
-    constructor(x,y,_angle)
+    constructor(x,y,_angle,_lastX = undefined, _lastY = undefined, _pc = undefined, _pa = undefined)
     {
         assertInRange(x,BOUNDS.X_LOW,BOUNDS.X_HIGH);
         assertInRange(y,BOUNDS.Y_LOW,BOUNDS.Y_HIGH);
         assertInRange(_angle,BOUNDS.ANGLE_LOW,BOUNDS.ANGLE_HIGH);
         this.originalX = x;
         this.originalY = y;
-        this.lastX = x;
-        this.lastY = y;
+        this.lastX = ifUndefined(_lastX,x)
+        this.lastY = ifUndefined(_lastY,y)
         this.angle = _angle;
-        this._penColor = DEFAULT_PEN_COLOR
-        this.penActive = true
+        this._penColor = ifUndefined(_pc,DEFAULT_PEN_COLOR)
+        this._penActive = ifUndefined(_pa,true);
     }
 
+    static newFromExisting (otherVmState,overridden) //to be used internally, when creating new instances
+    {
+        let originalX = ifUndefined(overridden.originalX,otherVmState.originalX);
+        let originalY = ifUndefined(overridden.originalY,otherVmState.originalY);
+        let lastX = ifUndefined(overridden.lastX,otherVmState.lastX);
+        let lastY = ifUndefined(overridden.lastY,otherVmState.lastY);
+        let angle = ifUndefined(overridden.angle,otherVmState.angle);
+        let _penColor = ifUndefined(overridden.penColor,otherVmState.penColor)
+        let penActive = ifUndefined(overridden.penActive,otherVmState.penActive)
+        return new VMState(originalX,originalY,angle,lastX,lastY,_penColor,penActive)
+    }
+
+    /**
+     * Return the angle of this state, but in radians
+     */
     radianAngle()
     {
         return this.angle * Math.PI / 180;
     }
 
-    lastPointIs(x,y)
+    /**
+     * Return a new state with the position set to the given arguments
+     * @param {number} x The x of the position to set
+     * @param {number} y The y of the position to set
+     */
+    withLastPoint(x,y)
     {
-        this.lastX = x;
-        this.lastY = y;
+        return VMState.newFromExisting(this,{lastX : x, lastY : y});
+
     }
 
-    setAngle(a)
+    withAngle(a)
     {
         assertIsNum(a);
         a = a % BOUNDS.ANGLE_HIGH;
-        this.angle = a;
+        return VMState.newFromExisting(this,{angle : a})
     }
 
     get penColor() { return this._penColor; }
-    set penColor(c) { this._penColor = c }
+    withPenColor(c) { return VMState.newFromExisting(this,{penColor : c})}
 
     get penActive() { return this._penActive }
-    set penActive(b) {this._penActive = b}
+    withPenActive(b) { return VMState.newFromExisting(this,{penActive : b})}
 }
 
 module.exports = {
