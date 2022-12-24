@@ -36,11 +36,18 @@ function assertNonNegativeNum(val,msg)
  * @param {any} def The default value to return if the 1st is undefined
  */
 const ifUndefined = (v,def) => v === undefined ? def : v
+/**
+ * Tests if the given value is undefined, and if not, executes the given block
+ * @param {any} v The value to test
+ * @param {function} block The block to execute if the value is undefined
+ */
+const ifNotUndefinedDo = (v,block) => { if (v !== undefined) block() }
 
 module.exports = {
     assertInRange,
     assertIsNum,
     assertNotNull,
     assertNonNegativeNum,
-    ifUndefined
+    ifUndefined,
+    ifNotUndefinedDo
 }

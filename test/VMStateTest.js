@@ -1,5 +1,5 @@
 const assert = require('assert');
-const {VMState,DEFAULT_PEN_COLOR} = require('../src/VMState')
+const {VMState,DEFAULT_PEN_COLOR, BOUNDS} = require('../src/VMState')
 
 describe("VMState",function() {
     it("Sets initialization values correctly",function() {
@@ -46,5 +46,75 @@ describe("VMState",function() {
         newState = vms.withPenColor("red")
         assert.strictEqual(newState.penColor,"red")
         assert.strictEqual(vms.penColor,DEFAULT_PEN_COLOR)
+    })
+
+    it("Rejects illegal arguments", function() {
+
+        assert.throws(() => {
+            new VMState(BOUNDS.X_LOW-1 ,20,90)
+        }, /is out of bound/, "testing X")
+
+        assert.throws(() => {
+            new VMState(BOUNDS.X_HIGH+2 ,20,90)
+        }, /is out of bound/,"testing x high")
+
+        assert.throws(() => {
+            new VMState("xx" ,20,90)
+        }, /is not a number/,"testing x type")
+
+        assert.throws(() => {
+            new VMState(null ,20,90)
+        }, /is null/,"testing x null")
+
+        assert.throws(() => {
+            new VMState(10 ,BOUNDS.Y_LOW-3,90)
+        }, /is out of bound/, "testing Y low")
+
+        assert.throws(() => {
+            new VMState(10 ,BOUNDS.Y_HIGH+4,90)
+        }, /is out of bound/,"testing Y high")
+
+        assert.throws(() => {
+            new VMState(10 ,"yy",90)
+        }, /is not a number/,"testing y type")
+
+        assert.throws(() => {
+            new VMState(10 ,null,90)
+        }, /is null/,"testing y null")
+
+        assert.throws(() => {
+            new VMState(10 ,20,BOUNDS.ANGLE_LOW-2)
+        }, /is out of bound/, "testing angle low")
+
+        assert.throws(() => {
+            new VMState(10 ,20,BOUNDS.ANGLE_HIGH+40)
+        }, /is out of bound/,"testing angle high")
+        
+        assert.throws(() => {
+            new VMState(10 ,20,undefined)
+        }, /is not a number/,"testing angle type")
+
+        assert.throws(() => {
+            new VMState(10 ,20,null)
+        }, /is null/,"testing angle null")
+
+        assert.throws(() => {
+            new VMState(10 ,20,32,BOUNDS.X_LOW-2)
+        }, /is out of bound/,"last x low")
+
+        assert.throws(() => {
+            new VMState(10 ,20,32,BOUNDS.X_HIGH+2)
+        }, /is out of bound/,"last x high")
+
+
+        assert.throws(() => {
+            new VMState(10 ,20,32,50,BOUNDS.Y_LOW-1)
+        }, /is out of bound/,"last y low")
+
+        assert.throws(() => {
+            new VMState(10 ,20,32,50,BOUNDS.Y_HIGH+2)
+        }, /is out of bound/,"last y high")
+
+
     })
 })

@@ -1,5 +1,5 @@
 
-const { assertInRange,assertIsNum, ifUndefined } = require('./util.js')
+const { assertInRange,assertIsNum, ifUndefined, ifNotUndefinedDo } = require('./util.js')
 
 const BOUNDS = {
     X_LOW : 0,
@@ -23,7 +23,9 @@ class VMState
         assertInRange(_angle,BOUNDS.ANGLE_LOW,BOUNDS.ANGLE_HIGH);
         this.originalX = x;
         this.originalY = y;
+        ifNotUndefinedDo(_lastX,() => assertInRange(_lastX,BOUNDS.X_LOW,BOUNDS.X_HIGH));
         this.lastX = ifUndefined(_lastX,x)
+        ifNotUndefinedDo(_lastY,() => assertInRange(_lastY,BOUNDS.Y_LOW,BOUNDS.Y_HIGH));
         this.lastY = ifUndefined(_lastY,y)
         this.angle = _angle;
         this._penColor = ifUndefined(_pc,DEFAULT_PEN_COLOR)
@@ -78,4 +80,5 @@ class VMState
 module.exports = {
     VMState,
     DEFAULT_PEN_COLOR //for testing, otherwise don't see a reason to expose this (maybe move it?)
+    , BOUNDS //also here
 }
