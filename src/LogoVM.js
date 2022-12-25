@@ -20,12 +20,19 @@ function commandMap(processor)
     return COMMAND_MAP
 }
 
+const createSVGImpl = (drawingElement) => SVG().addTo(drawingElement).size('100%', '100%');
+
 class LogoVM
 {
-    constructor(drawingElement)
+    /**
+     * 
+     * @param {Object} drawingElement The containing element in which to draw the result
+     * @param {Function} vmUnderlyingImpl A builder function that creates the underlying implementation. Allows injecting mock implementations. Defaults to an internal SVG implementation
+     */
+    constructor(drawingElement, vmUnderlyingImpl = undefined)
     {
         assertNotNull(drawingElement);
-        this.draw = SVG().addTo(drawingElement).size('100%', '100%');
+        this.draw = vmUnderlyingImpl === undefined ? createSVGImpl(drawingElement) : vmUnderlyingImpl(drawingElement)
     }
 
     get drawingObj() {
