@@ -1,6 +1,17 @@
 
 const assert = require("assert");
 
+class Comment
+{
+    constructor (txt)
+    {
+        this._text = txt || ""
+    }
+
+    get text() { return this._text }
+}
+
+
 class Action
 {
     constructor (act)
@@ -115,5 +126,6 @@ module.exports = {
     Loop,
     Program,
     SetPenColor,
-    PenActive
+    PenActive,
+    Comment
 }

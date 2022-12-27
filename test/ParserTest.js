@@ -1,11 +1,11 @@
 const assert = require('assert');
 const { createParser } = require("../src/Lang.js")
-const {Forward,Right, Program, Loop,SetPenColor, PenActive} = require("../src/IR")
+const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment} = require("../src/IR");
 
 
 describe('Parser', function () {
   describe('Language Parser', function () {
-    it('successfully parse a simple square drawing program', function () {
+    it('successfully parses a simple square drawing program', function () {
       
       let testProgram = String.raw`
         fd 100
@@ -138,6 +138,45 @@ describe('Parser', function () {
       ])
 
       assert.equal(expectedProgram.statements[1].isActive,false)
+
+      assert.deepEqual(result,expectedProgram)
+    });
+
+    it("Can parse a comment successfully", function() {
+      let testProgram = String.raw`
+        // forward 50
+        fd 50
+        //a long right branch
+        rt 90
+        fd 100
+        //A square
+        repeat 4
+          //make a right
+          rt 90
+          //and go forward
+          fd 40
+        end
+        //Done!
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      let expectedProgram = new Program([
+        new Comment(" forward 50"),
+        new Forward(50),
+        new Comment("a long right branch"),
+        new Right(90),
+        new Forward(100),
+        new Comment("A square"),
+        new Loop(4,[
+          new Comment("make a right"),
+          new Right(90),
+          new Comment("and go forward"),
+          new Forward(40)
+        ]),
+        new Comment("Done!")
+      ])
 
       assert.deepEqual(result,expectedProgram)
     })

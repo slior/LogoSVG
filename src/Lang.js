@@ -2,12 +2,15 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right, Program, Loop, SetPenColor, PenActive} = require("./IR")
+const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
-        Program = CommandList
+        Program = ProgramElements
         
+        ProgramElement = Command | comment
+        ProgramElements = ProgramElement*
+
         Command = forward | right | left | Loop | pen_color | pen_up | pen_down
         CommandList = Command? (~";" Command)*
           
@@ -20,7 +23,10 @@ const g = String.raw`
         color_name = alnum+ //should be any color allowed in the SVG styling
         int = digit+
 
-        Loop = "repeat" spaces int CommandList "end"
+        Loop = "repeat" spaces int ProgramElements "end"
+
+        comment = "//" (~"\n" any)* "\n"
+        
     }
 `
 
@@ -99,8 +105,16 @@ function createParser()
             return [first, ...restOfCode];
         }, 
 
-        Program(commandList) {
-            return new Program(commandList.asIR())
+        ProgramElement(prgEl) {
+            return prgEl.asIR();
+        },
+
+        Program(programElements) {
+            return new Program(programElements.asIR())
+        },
+    
+        comment(_,text,nl) {
+            return new Comment(text.sourceString)
         },
     
         _iter(...commands) {
