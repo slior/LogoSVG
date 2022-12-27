@@ -90,7 +90,7 @@ class Block
 
     get statements()
     {
-        return this._statements;
+        return this._statements.filter(st => !(st instanceof Comment));
     }
 }
 

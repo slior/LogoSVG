@@ -1,5 +1,10 @@
 <html>
 <head>
+    <style>
+        .errorText { 
+            color: red;
+        }
+    </style>
     <script src="./main.js"></script>
 <script>
 
@@ -13,9 +18,23 @@
 
     function parseAndExecuteProgram()
     {
-        let code = document.getElementById('programCode').value;
-        let program = main.parseCode(code);
-        runner.run(program);
+        try
+        {
+
+            let code = document.getElementById('programCode').value;
+            let program = main.parseCode(code);
+            runner.run(program);
+        }
+        catch (err)
+        {
+            showError(err.toString())
+        }
+    }
+
+    function showError(msg)
+    {
+        console.error(msg || '')
+        document.getElementById("error").innerText = `${msg || ""}`
     }
 
     function reset()
@@ -39,5 +58,7 @@
     <textarea id="programCode" style="width:80%;height:400px"></textarea>
     <input type="button" value="Execute" onclick="parseAndExecuteProgram()" />
     <input type="button" value="Reset" onclick="reset()" />
+    <br/>
+    <span id="error" class="errorText" ></span>
 </body>
 </html>
