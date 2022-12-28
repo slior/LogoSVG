@@ -180,5 +180,29 @@ describe('Parser', function () {
 
       assert.deepEqual(result,expectedProgram)
     })
+
+    it("Can parse a back command properly",function() {
+      let testProgram = String.raw`
+        repeat 4
+          bk 50
+          rt 90
+        end
+
+      `
+
+      let expectedProgram = new Program([
+        new Loop(4,[
+          new Right(180),
+          new Forward(50),
+          new Right(180),
+          new Right(90)
+        ])
+      ])
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      assert.deepEqual(result,expectedProgram)
+    })
   });
 });

@@ -11,10 +11,11 @@ const g = String.raw`
         ProgramElement = Command | comment
         ProgramElements = ProgramElement*
 
-        Command = forward | right | left | Loop | pen_color | pen_up | pen_down
+        Command = forward | right | left | Loop | pen_color | pen_up | pen_down | back
         CommandList = Command? (~";" Command)*
           
         forward = "fd" spaces int
+        back = "bk" spaces int
         right = "rt" spaces int
         left = "lt" spaces int
         pen_color = "pc" spaces color_name
@@ -65,44 +66,59 @@ function createPrettyPrinter()
 function createParser()
 {
     let irBuilder = lang.createSemantics();
+
+    /**
+     * As IR turns the tokens into the intermediate reprsentation.
+     * It's defined, for each rule, as 
+     *   asIR: list of tokens => list of IR elements
+     */
     irBuilder.addOperation("asIR()",{
         forward(_, __, howMuch) { 
-            return new Forward(howMuch.asIR())
+            return [new Forward(howMuch.asIR()[0])]
         },
     
+        back(_,__,howMuch) {
+            //rewriting to right(180)-forward(howMuch)-right(180)
+            return [
+                new Right(180),
+                new Forward(howMuch.asIR()[0]),
+                new Right(180)
+            ]
+        },
+
         right(_, __, howMuch) { 
-            return new Right(howMuch.asIR())
+            return [new Right(howMuch.asIR()[0])]
         }, 
 
         left(_,__,howMuch) {
             //note: rewriting left as a right statement
-            let angle = howMuch.asIR();
-            return new Right(360 - angle)
+            let angle = howMuch.asIR()[0];
+            return [new Right(360 - angle)]
         },
         pen_color(_,__,color) {
-            return new SetPenColor(color.asIR())
+            return [new SetPenColor(color.asIR()[0])]
         },
         pen_up(_) {
-            return new PenActive(false);
+            return [new PenActive(false)];
         },
         pen_down(_) {
-            return new PenActive(true);
+            return [new PenActive(true)];
         },
         color_name(color)
         {
-            return color.sourceString
+            return [color.sourceString]
         },
     
-        int(i) { return parseInt(i.sourceString)}, 
+        int(i) { return [parseInt(i.sourceString)] }, 
     
         Command(c) {
             return c.asIR();
         },
     
         CommandList( firstCommand,commands) {
-            let first = firstCommand.children.length > 0 ? firstCommand.children[0].asIR() : {}
-            let restOfCode = commands.children.map(c => c.asIR())
-            return [first, ...restOfCode];
+            let first = firstCommand.children.length > 0 ? firstCommand.children[0].asIR() : [] //it's optional, so token may not exist
+            let restOfCode = commands.children.flatMap(c=>c.asIR())
+            return first.concat(restOfCode)
         }, 
 
         ProgramElement(prgEl) {
@@ -110,30 +126,31 @@ function createParser()
         },
 
         Program(programElements) {
-            return new Program(programElements.asIR())
+            return [new Program(programElements.asIR())]
         },
     
         comment(_,text,nl) {
-            return new Comment(text.sourceString)
+            return [new Comment(text.sourceString)]
         },
     
         _iter(...commands) {
-            return commands.map(c => c.asIR())
+            return commands.flatMap(c => c.asIR())
         },
 
         _terminal() {
-            return this.sourceString
+            return [this.sourceString]
         }
 
         , Loop(_, __, iters,commandList,___) {
-            return new Loop(iters.asIR(),commandList.asIR())
+            return new Loop(iters.asIR()[0],commandList.asIR())
+
         }
     })
     
     return (programText) => {
         let m = lang.match(programText);
         if (m.succeeded())
-            return irBuilder(m).asIR();
+            return irBuilder(m).asIR()[0]; //the single element should be the Program
         else
             throw new Error(`Failed to parse program: ${m.message}`)
     }
