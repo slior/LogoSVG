@@ -100,12 +100,21 @@
     <script src="./main.js"></script>
 <script>
 
+    const DEFAULT_STARTING_X = 100;
+    const DEFAULT_STARTING_Y = 100;
+    const DEFAULT_STARTING_ANGLE = 270;
+
     var runner;
 
     function init()
     {
+        let params = new URLSearchParams(window.location.search);
+        let startX = params.get("x") || DEFAULT_STARTING_X;
+        let startY = params.get("y") || DEFAULT_STARTING_Y;
+        let startAngle = params.get("angle") || DEFAULT_STARTING_ANGLE;
+        
         let drawingBoard = document.getElementById('drawing')
-        runner = main.initApp(drawingBoard,100,100,270)
+        runner = main.initApp(drawingBoard,startX,startY,startAngle)
     }
 
     function parseAndExecuteProgram()

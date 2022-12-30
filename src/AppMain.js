@@ -2,12 +2,20 @@
 const { VMState } = require("./VMState.js")
 const { createParser } = require("./Lang")
 const { ProgramRunner } = require("./ProgramRunner")
+const {assertIsNum } = require("./util")
 
 var initialCursorCoords = { x : 0, y : 0, angle : 0}
 var programRunner = null;
 
 function initApp(drawingContainer,startingX,startingY,startingAngle)
 {
+    assertIsNum(startingX);
+    assertIsNum(startingY);
+    assertIsNum(startingAngle);
+    //Javascript... making sure we're dealing w/ numbers
+    startingAngle *=1;
+    startingX *=1;
+    startingY *=1;
     let context = new VMState(startingX,startingY,startingAngle);
     initialCursorCoords = { x: startingX, y: startingY, angle : startingAngle}
     programRunner = new ProgramRunner(context,drawingContainer);
