@@ -8,12 +8,13 @@ const g = String.raw`
     LogoSVG {
         Program = ProgramElements
         
-        ProgramElement = Command | comment
-        ProgramElements = ProgramElement*
+        SingleCommand = Command ";"
+        ProgramElement = SingleCommand | comment
+        ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
         Command = forward | right | left | Loop | pen_color | pen_up | pen_down | back
-        CommandList = Command? (~";" Command)*
-          
+        CommandList = (Command ";")? (~";" Command ";")*
+        
         forward = "fd" spaces int
         back = "bk" spaces int
         right = "rt" spaces int
@@ -26,7 +27,7 @@ const g = String.raw`
 
         Loop = "repeat" spaces int ProgramElements "end"
 
-        comment = "//" (~"\n" any)* "\n"
+        comment = "//" (~"\n" any)*
         
     }
 `
@@ -35,33 +36,6 @@ const g = String.raw`
 const lang = ohm.grammar(g);
 
 
-function createPrettyPrinter()
-{
-    const semantics = lang.createSemantics();
-    semantics.addOperation("code()",{
-        forward(_, __, howMuch) { 
-            return `Forward ${howMuch.sourceString}`
-        },
-    
-        right(_, __, howMuch) { return `Right ${howMuch.sourceString}`}, 
-    
-        int(i) { return `${i.sourceString}`}, 
-    
-        Command(c) {
-            return c.code();
-        },
-    
-        Program(firstCommand, commands) {
-            let first = firstCommand.code();
-            let restOfCode = commands.children.map(c => c.code()).join("\n")
-            return first + "\n" + restOfCode;
-        }, 
-    
-        _iter(...commands) {
-            return commands.map(c => c.code()).join("\n");
-        }
-    })
-}
 
 function createParser()
 {
@@ -114,8 +88,13 @@ function createParser()
         Command(c) {
             return c.asIR();
         },
+
+        SingleCommand(c,_)
+        {
+            return c.asIR();
+        },
     
-        CommandList( firstCommand,commands) {
+        CommandList( firstCommand,_,commands, __) {
             let first = firstCommand.children.length > 0 ? firstCommand.children[0].asIR() : [] //it's optional, so token may not exist
             let restOfCode = commands.children.flatMap(c=>c.asIR())
             return first.concat(restOfCode)
@@ -125,11 +104,18 @@ function createParser()
             return prgEl.asIR();
         },
 
+        ProgramElements (maybeFirstElement, restOfElements)
+        {
+            let first = maybeFirstElement.children.length > 0 ? maybeFirstElement.children[0].asIR() : []
+            let otherElements = restOfElements.children.flatMap(e => e.asIR())
+            return first.concat(otherElements)
+        },
+
         Program(programElements) {
             return [new Program(programElements.asIR())]
         },
     
-        comment(_,text,nl) {
+        comment(_,text) {
             return [new Comment(text.sourceString)]
         },
     
@@ -142,7 +128,7 @@ function createParser()
         }
 
         , Loop(_, __, iters,commandList,___) {
-            return new Loop(iters.asIR()[0],commandList.asIR())
+            return [new Loop(iters.asIR()[0],commandList.asIR())]
 
         }
     })

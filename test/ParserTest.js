@@ -8,13 +8,13 @@ describe('Parser', function () {
     it('successfully parses a simple square drawing program', function () {
       
       let testProgram = String.raw`
-        fd 100
-        rt 90
-        fd 100
-        rt 90
-        fd 100
-        rt 90
-        fd 100
+        fd 100;
+        rt 90;
+        fd 100;
+        rt 90;
+        fd 100;
+        rt 90;
+        fd 100;
       `
 
       let p = createParser()
@@ -35,9 +35,9 @@ describe('Parser', function () {
     it('Can parse a loop',function() {
       let testProgram = String.raw`
         repeat 4 
-          fd 100
-          rt 90
-        end
+          fd 100;
+          rt 90;
+        end;
       `
 
       let p = createParser()
@@ -53,10 +53,10 @@ describe('Parser', function () {
 
     it ('Can parse a pen color statement',function() {
       let testProgram = String.raw`
-          fd 100
-          rt 90
-          pc red
-          fd 100
+          fd 100;
+          rt 90;
+          pc red;
+          fd 100;
       `
 
       let p = createParser()
@@ -75,11 +75,11 @@ describe('Parser', function () {
       let testProgram = String.raw`
           repeat 6
             repeat 4
-              fd 50
-              rt 90
-            end
-            rt 45
-          end
+              fd 50;
+              rt 90;
+            end;
+            rt 45;
+          end;
       `
 
       let p = createParser()
@@ -99,10 +99,10 @@ describe('Parser', function () {
 
     it ("Can parse a 'left' as an opposite of 'right'", function() {
       let testProgram = String.raw`
-        fd 50
-        rt 90
-        lt 45
-        fd 50
+        fd 50;
+        rt 90;
+        lt 45;
+        fd 50;
       `
 
       let p = createParser()
@@ -119,11 +119,11 @@ describe('Parser', function () {
 
     it("Can parse a pen up and down statements correctly", function() {
       let testProgram = String.raw`
-        fd 50
-        pu
-        fd 50
-        pd
-        fd 50
+        fd 50;
+        pu;
+        fd 50;
+        pd;
+        fd 50;
       `
 
       let p = createParser()
@@ -145,17 +145,17 @@ describe('Parser', function () {
     it("Can parse a comment successfully", function() {
       let testProgram = String.raw`
         // forward 50
-        fd 50
+        fd 50;
         //a long right branch
-        rt 90
-        fd 100
+        rt 90;
+        fd 100;
         //A square
         repeat 4
           //make a right
-          rt 90
+          rt 90;
           //and go forward
-          fd 40
-        end
+          fd 40;
+        end;
         //Done!
       `
 
@@ -184,9 +184,9 @@ describe('Parser', function () {
     it("Can parse a back command properly",function() {
       let testProgram = String.raw`
         repeat 4
-          bk 50
-          rt 90
-        end
+          bk 50;
+          rt 90;
+        end;
 
       `
 
