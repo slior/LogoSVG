@@ -22,6 +22,80 @@
             box-shadow: inset 4px 4px 12px #c5c5c5,
                         inset -4px -4px 12px #ffffff;
         }
+
+        body{
+            font-family: arial;	
+        }
+
+        .drawingArea {
+            height : 38vh;
+            width:100%;
+            border:1px solid black;
+        }
+
+        .wrapper{
+            width: 99vw;
+            height: 45vh;
+            
+            
+            display: flex;
+            align-items: stretch;
+            justify-content: left;
+        }
+
+        .cmd{
+            position: relative;
+            display: block;
+            
+            /* height: 600px; */
+            height: 40vh;
+            width: 100%;
+            border: 1px solid #000000;
+            border-radius: 4px;
+            overflow: hidden;
+            
+            box-shadow: 0px 8px 18px #4b1d3f;
+        }
+
+        /*
+        * 1. Set position
+        * 2. Set dimension
+        * 3. Style
+        */
+        .title-bar{
+            /* 1 */
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            /* 2 */
+            width: 100%;
+            height: 40px;
+            /* 3 */
+            display: block;
+            color: #FFFFFF;
+            line-height: 40px;
+            font-weight: 600;
+            background-color: #242424;
+            text-align: left;
+        }
+
+        .textarea{
+            position: relative;
+            top: 40px;
+            padding: 12px;
+            
+            resize: none;
+            width: 100%;
+            height: calc(100%);
+            background-color: #4b1d3f;
+            border: none;
+            color: #FFFFFF;
+            margin: 0px;
+            font-size: 1.1rem;
+        }
+
+
     </style>
     <script src="./main.js"></script>
 <script>
@@ -75,15 +149,17 @@
 
 <body onload="init()">
 
-    <div id="drawing" width="100%" style="border:1px solid black;height:50%"></div>
+    <div id="drawing" class="drawingArea"></div>
     <hr/>
-    <h3>Program</h3>
-    <textarea id="programCode" style="width:80%;height:350px"></textarea>
-    <br />
-    <br />
+    <div class="wrapper">
+        <div class="cmd">
+            <div class="title-bar">Program</div>
+            <textarea id="programCode" placeholder="Your code here" class="textarea"></textarea>
+        </div>
+    </div>
     <button onclick="parseAndExecuteProgram()"> Execute </button>
     <button onclick="reset()">Reset</button>
-    <hr/>
+        <hr/>
     <span id="error" class="errorText" ></span>
 </body>
 </html>
