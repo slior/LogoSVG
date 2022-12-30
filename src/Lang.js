@@ -13,7 +13,6 @@ const g = String.raw`
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
         Command = forward | right | left | Loop | pen_color | pen_up | pen_down | back
-        CommandList = (Command ";")? (~";" Command ";")*
         
         forward = "fd" spaces int
         back = "bk" spaces int
@@ -93,12 +92,6 @@ function createParser()
         {
             return c.asIR();
         },
-    
-        CommandList( firstCommand,_,commands, __) {
-            let first = firstCommand.children.length > 0 ? firstCommand.children[0].asIR() : [] //it's optional, so token may not exist
-            let restOfCode = commands.children.flatMap(c=>c.asIR())
-            return first.concat(restOfCode)
-        }, 
 
         ProgramElement(prgEl) {
             return prgEl.asIR();
