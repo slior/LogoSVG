@@ -89,3 +89,17 @@ repeat 4
   rt 90;
 end;
 ```
+
+3. 
+
+```
+rt 90; pu; fd 200; lt 90; bk 100; pd; 
+
+repeat 40
+  repeat 10
+    rt 36;
+    fd 60;
+  end;
+  rt 18;
+end;
+```
