@@ -20,7 +20,7 @@ function commandMap(processor)
     return COMMAND_MAP
 }
 
-const createSVGImpl = (drawingElement) => SVG().addTo(drawingElement).size('100%', '100%');
+const createSVGImpl = (drawingElement) => SVG().addTo(drawingElement).addClass("drawingSVG")
 
 class LogoVM
 {
