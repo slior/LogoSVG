@@ -240,5 +240,27 @@ describe('Parser', function () {
       ])
       assert.deepEqual(result,expectedProgram)
     })
+
+    it("Can parse a loop with an expression",function() {
+      let testProgram = String.raw`
+        repeat 350 + 10
+          fd 1;
+          rt 1;
+        end;
+
+      `
+
+      let expectedProgram = new Program([
+        new Loop(new BinaryOp('+',new NumberLiteral(350),new NumberLiteral(10)),[
+          new Forward(number(1)),
+          new Right(number(1)),
+        ])
+      ])
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      assert.deepEqual(result,expectedProgram)
+    })
   });
 });

@@ -24,7 +24,7 @@ const g = String.raw`
         color_name = alnum+ //should be any color allowed in the SVG styling
         int = digit+
 
-        Loop = "repeat" spaces int ProgramElements "end"
+        Loop = "repeat" spaces expr ProgramElements "end"
         comment = "//" (~"\n" any)*
 
         ///Arithmetic Expressions
@@ -132,7 +132,7 @@ function createParser()
         }
 
         , Loop(_, __, iters,commandList,___) {
-            return [new Loop(iters.asIR(),commandList.asIR())]
+            return [new Loop(iters.asIR()[0],commandList.asIR())]
         }
 
         , int(i) { return new NumberLiteral(parseInt(i.sourceString)) }
