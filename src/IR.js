@@ -1,5 +1,6 @@
 
 const assert = require("assert");
+const {assertNotNull,assertIsNum} = require("./util")
 
 class Comment
 {
@@ -32,8 +33,7 @@ class Forward extends Action
     constructor (__howMuch)
     {
         super(Forward.action)
-        assert(!isNaN(__howMuch),"_howMuch must be a number")
-        assert(__howMuch >= 0,"number of steps must be non-negative");
+        assert(__howMuch instanceof Expr,"__howMuch must be an expression")
         this._howMuch = __howMuch
     }
 
@@ -50,8 +50,7 @@ class Right extends Action
     constructor(_howMuch)
     {
         super(Right.action)
-        assert(!isNaN(_howMuch),"_howMuch must be a number")
-        assert(_howMuch >= 0,"angle must be non-negative: " + _howMuch);
+        assert(_howMuch instanceof Expr,"__howMuch must be an expression")
         this.howMuch = _howMuch
     }
 }
@@ -100,9 +99,9 @@ class Loop extends Action
     constructor(_iterCount,_stmts)
     {
         super(Loop.action)
-        assert(!isNaN(_iterCount),"iteration count must be a number");
+        assert(_iterCount instanceof Expr, "Iteration count must be a numeric expression")
         this.block = new Block(_stmts);
-        this._iterCount = Math.max(0,_iterCount)
+        this._iterCount = _iterCount;
     }
 
     get iterCount() { return this._iterCount }
@@ -120,6 +119,41 @@ class Program extends Block
 }
 
 
+//Intermediate representation for expressions
+class Expr {}
+
+class NumberLiteral extends Expr
+{
+    constructor(num)
+    {
+        super();
+        assertIsNum(num)
+        this._number = num;
+    }
+
+    get number() { return this._number }
+}
+
+class BinaryOp extends Expr
+{
+    constructor(operator,op1,op2)
+    {
+        super();
+        assertNotNull(operator)
+        assertNotNull(op1)
+        assertNotNull(op2)
+        this._operator = operator;
+        this._op1 = op1;
+        this._op2 = op2;
+    }
+
+    get operator() { return this._operator }
+    get operand1() { return this._op1 }
+    get operand2() { return this._op2 }
+}
+
+
+
 module.exports = {
     Forward,
     Right,
@@ -127,5 +161,7 @@ module.exports = {
     Program,
     SetPenColor,
     PenActive,
-    Comment
+    Comment,
+    BinaryOp,
+    NumberLiteral
 }

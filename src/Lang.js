@@ -2,7 +2,7 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment} = require("./IR")
+const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
@@ -14,10 +14,10 @@ const g = String.raw`
 
         Command = forward | right | left | Loop | pen_color | pen_up | pen_down | back
         
-        forward = "fd" spaces int
-        back = "bk" spaces int
-        right = "rt" spaces int
-        left = "lt" spaces int
+        forward = "fd" spaces expr
+        back = "bk" spaces expr
+        right = "rt" spaces expr
+        left = "lt" spaces expr
         pen_color = "pc" spaces color_name
         pen_up = "pu"
         pen_down = "pd"
@@ -25,8 +25,21 @@ const g = String.raw`
         int = digit+
 
         Loop = "repeat" spaces int ProgramElements "end"
-
         comment = "//" (~"\n" any)*
+
+        ///Arithmetic Expressions
+        expr = addOrSubExpr //Note: this is the lowest precedence, so it derives other higher precedence operations
+        
+        //A fraction or integer
+        positiveFractionLiteral = int? "." int
+        positiveNumberLiteral = positiveFractionLiteral | int
+        negativeNumberLiteral = "-" positiveNumberLiteral
+
+        //To build precedence into the grammar, each higher precedence operator derives a lower precedence operator
+
+        addOp = addOrSubExpr spaces "+" spaces positiveNumberLiteral
+        subOp = addOrSubExpr spaces "-" spaces positiveNumberLiteral
+        addOrSubExpr = addOp | subOp | positiveNumberLiteral
         
     }
 `
@@ -53,9 +66,9 @@ function createParser()
         back(_,__,howMuch) {
             //rewriting to right(180)-forward(howMuch)-right(180)
             return [
-                new Right(180),
+                new Right(new NumberLiteral(180)),
                 new Forward(howMuch.asIR()[0]),
-                new Right(180)
+                new Right(new NumberLiteral(180))
             ]
         },
 
@@ -66,7 +79,7 @@ function createParser()
         left(_,__,howMuch) {
             //note: rewriting left as a right statement
             let angle = howMuch.asIR()[0];
-            return [new Right(360 - angle)]
+            return [new Right(new BinaryOp("-",new NumberLiteral(360),angle))]
         },
         pen_color(_,__,color) {
             return [new SetPenColor(color.asIR()[0])]
@@ -81,8 +94,6 @@ function createParser()
         {
             return [color.sourceString]
         },
-    
-        int(i) { return [parseInt(i.sourceString)] }, 
     
         Command(c) {
             return c.asIR();
@@ -121,8 +132,30 @@ function createParser()
         }
 
         , Loop(_, __, iters,commandList,___) {
-            return [new Loop(iters.asIR()[0],commandList.asIR())]
+            return [new Loop(iters.asIR(),commandList.asIR())]
+        }
 
+        , int(i) { return new NumberLiteral(parseInt(i.sourceString)) }
+        , positiveFractionLiteral(maybeInt,__,someFraction) {
+            let intPart = maybeInt.children.length > 0 ? 
+                                maybeInt.sourceString
+                                : '0';
+            let fractionPart = someFraction.sourceString;
+            let num = parseFloat(intPart + "." + fractionPart)
+            return new NumberLiteral(num)
+        }
+        , positiveNumberLiteral(someNum) {
+            return [someNum.asIR()]
+        }
+        , addOp(arg1,_,__,___,arg2) {
+            let op1 = arg1.asIR()[0]
+            let op2 = arg2.asIR()[0]
+            return [new BinaryOp('+',op1,op2)]
+        }
+        ,subOp (arg1,_,__,___,arg2) {
+            let op1 = arg1.asIR()[0]
+            let op2 = arg2.asIR()[0]
+            return [new BinaryOp('-',op1,op2)]
         }
     })
     

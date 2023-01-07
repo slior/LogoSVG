@@ -1,7 +1,7 @@
 const assert = require('assert');
 const { createParser } = require("../src/Lang.js")
-const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment} = require("../src/IR");
-
+const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral} = require("../src/IR");
+const {number,binOp} = require("./util")
 
 describe('Parser', function () {
   describe('Language Parser', function () {
@@ -22,13 +22,13 @@ describe('Parser', function () {
       let result = p(testProgram)
 
       assert.deepEqual(result,new Program([
-        new Forward(100),
-        new Right(90),
-        new Forward(100),
-        new Right(90),
-        new Forward(100),
-        new Right(90),
-        new Forward(100)
+        new Forward(number(100)),
+        new Right(number(90)),
+        new Forward(number(100)),
+        new Right(number(90)),
+        new Forward(number(100)),
+        new Right(number(90)),
+        new Forward(number(100))
       ]))
     });
 
@@ -44,9 +44,9 @@ describe('Parser', function () {
       let result = p(testProgram)
 
       assert.deepEqual(result,new Program([
-        new Loop(4,[
-          new Forward(100),
-          new Right(90)
+        new Loop(number(4),[
+          new Forward(number(100)),
+          new Right(number(90))
         ])
       ]))
     });
@@ -63,10 +63,10 @@ describe('Parser', function () {
       let result = p(testProgram)
 
       assert.deepEqual(result,new Program([
-        new Forward(100),
-        new Right(90),
+        new Forward(number(100)),
+        new Right(number(90)),
         new SetPenColor("red"),
-        new Forward(100)
+        new Forward(number(100))
 
       ]))
     });
@@ -86,12 +86,12 @@ describe('Parser', function () {
       let result = p(testProgram)
 
       assert.deepEqual(result,new Program([
-        new Loop(6,[
-          new Loop(4,[
-            new Forward(50),
-            new Right(90)
+        new Loop(number(6),[
+          new Loop(number(4),[
+            new Forward(number(50)),
+            new Right(number(90))
           ]),
-          new Right(45)
+          new Right(number(45))
         ])
       ]))
 
@@ -109,10 +109,10 @@ describe('Parser', function () {
       let result = p(testProgram)
 
       assert.deepEqual(result,new Program([
-        new Forward(50),
-        new Right(90)
-        , new Right(360-45)
-        , new Forward(50)
+        new Forward(number(50)),
+        new Right(number(90))
+        , new Right(binOp("-",number(360),number(45)))
+        , new Forward(number(50))
       ]))
 
     });
@@ -130,11 +130,11 @@ describe('Parser', function () {
       let result = p(testProgram)
 
       let expectedProgram = new Program([
-        new Forward(50),
+        new Forward(number(50)),
         new PenActive(false),
-        new Forward(50),
+        new Forward(number(50)),
         new PenActive(true),
-        new Forward(50)
+        new Forward(number(50))
       ])
 
       assert.equal(expectedProgram.statements[1].isActive,false)
@@ -164,16 +164,16 @@ describe('Parser', function () {
 
       let expectedProgram = new Program([
         new Comment(" forward 50"),
-        new Forward(50),
+        new Forward(number(50)),
         new Comment("a long right branch"),
-        new Right(90),
-        new Forward(100),
+        new Right(number(90)),
+        new Forward(number(100)),
         new Comment("A square"),
-        new Loop(4,[
+        new Loop(number(4),[
           new Comment("make a right"),
-          new Right(90),
+          new Right(number(90)),
           new Comment("and go forward"),
-          new Forward(40)
+          new Forward(number(40))
         ]),
         new Comment("Done!")
       ])
@@ -191,17 +191,53 @@ describe('Parser', function () {
       `
 
       let expectedProgram = new Program([
-        new Loop(4,[
-          new Right(180),
-          new Forward(50),
-          new Right(180),
-          new Right(90)
+        new Loop(number(4),[
+          new Right(number(180)),
+          new Forward(number(50)),
+          new Right(number(180)),
+          new Right(number(90))
         ])
       ])
 
       let p = createParser()
       let result = p(testProgram)
 
+      assert.deepEqual(result,expectedProgram)
+    })
+
+    it("Can parse a simple number literal", function() {
+      let testProgram = String.raw`
+        fd 10.1;
+        fd .5;
+        fd 50;
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      let expectedProgram = new Program([
+        new Forward(number(10.1))
+        , new Forward(number(0.5))
+        , new Forward(number(50))
+      ])
+      assert.deepEqual(result,expectedProgram)
+    })
+
+    it ("Can parse a binary operator expression when a number is expected", function() {
+      let testProgram = String.raw`
+        fd 10 + 2;
+        rt 5 - .5;
+        rt 10 - 2 + 5;
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      let expectedProgram = new Program([
+        new Forward(binOp('+',number(10),number(2)))
+        , new Right(binOp('-',number(5),number(0.5)))
+        , new Right(binOp('+',binOp('-',number(10),number(2)),number(5)))
+      ])
       assert.deepEqual(result,expectedProgram)
     })
   });

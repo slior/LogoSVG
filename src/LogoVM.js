@@ -1,7 +1,8 @@
 
+const assert = require('assert')
 const { SVG } = require('@svgdotjs/svg.js')
 const {assertNonNegativeNum,assertNotNull} = require("./util")
-const {Forward,Right, Loop, SetPenColor, PenActive} = require("./IR")
+const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp} = require("./IR")
 
 var COMMAND_MAP = null;
 
@@ -22,6 +23,49 @@ function commandMap(processor)
 
 const createSVGImpl = (drawingElement) => SVG().addTo(drawingElement).addClass("drawingSVG")
 
+class ExprEval
+{
+    constructor() 
+    { 
+        this.handlersByType = {}
+        this.handlersByType[NumberLiteral.name] = (e) => this.evalNumberLiteral(e)
+        this.handlersByType[BinaryOp.name] = (e) => this.evalBinOp(e)
+    }
+
+    eval(expr) 
+    {
+        return this.findEvalFuncFor(expr).apply(this,[expr])
+    }
+
+    findEvalFuncFor(expr)
+    {
+        let handler = this.handlersByType[expr.constructor.name]
+        if (handler)
+            return handler
+        else
+            throw new Error("Can't find handler for expression")
+    }
+
+    evalNumberLiteral(numExp)
+    {
+        assert(numExp instanceof NumberLiteral,"expression must be number literal")
+        return numExp.number;
+    }
+
+    evalBinOp(binOpExp)
+    {
+        assert(binOpExp instanceof BinaryOp,"expression must be a binary operation")
+        let arg1 = this.eval(binOpExp.operand1)
+        let arg2 = this.eval(binOpExp.operand2)
+        switch (binOpExp.operator)
+        {
+            case '+' : return arg1 + arg2;
+            case '-' : return arg1 - arg2;
+            default : throw new Error(`Unknown binary operator ${binOpExp.operator}`)
+        }
+    }
+}
+
 class LogoVM
 {
     /**
@@ -33,6 +77,7 @@ class LogoVM
     {
         assertNotNull(drawingElement);
         this.draw = vmUnderlyingImpl === undefined ? createSVGImpl(drawingElement) : vmUnderlyingImpl(drawingElement)
+        this.exprEvaluator = new ExprEval()
     }
 
     get drawingObj() {
@@ -62,8 +107,10 @@ class LogoVM
 
     forward(len,vmState)
     {
-        let x2 = vmState.lastX + len * Math.cos(vmState.radianAngle())
-        let y2 = vmState.lastY + len * Math.sin(vmState.radianAngle())
+        let howMuch = this.exprEvaluator.eval(len)
+        assertNonNegativeNum(howMuch,`Forward can only accept non-negative values. Got ${howMuch}; (maybe as result of expression evaluation?)`)
+        let x2 = vmState.lastX + howMuch * Math.cos(vmState.radianAngle())
+        let y2 = vmState.lastY + howMuch * Math.sin(vmState.radianAngle())
         if (vmState.penActive)
             this.drawingObj.line(vmState.lastX, vmState.lastY, x2, y2).stroke({ color: vmState.penColor,width: 1 }) 
         return vmState.withLastPoint(x2,y2);
@@ -71,11 +118,14 @@ class LogoVM
 
     right(angle,vmState)
     {
-        return vmState.withAngle(vmState.angle + angle)
+        let actualAngle = this.exprEvaluator.eval(angle)
+        assertNonNegativeNum(actualAngle,`Angle must be non-negative. Got ${actualAngle}; (maybe as result of expression evaluation?)`)
+        return vmState.withAngle(vmState.angle + actualAngle)
     }
 
-    loop(iterCount,statements,vmState)
+    loop(_iterCount,statements,vmState)
     {
+        let iterCount = this.exprEvaluator.eval(_iterCount)
         assertNonNegativeNum(iterCount)
         var iters = iterCount
         var stateForIteration = vmState
