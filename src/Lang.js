@@ -37,9 +37,13 @@ const g = String.raw`
 
         //To build precedence into the grammar, each higher precedence operator derives a lower precedence operator
 
-        addOp = addOrSubExpr spaces "+" spaces positiveNumberLiteral
-        subOp = addOrSubExpr spaces "-" spaces positiveNumberLiteral
-        addOrSubExpr = addOp | subOp | positiveNumberLiteral
+        addOp = addOrSubExpr spaces "+" spaces multOrDivExpr
+        subOp = addOrSubExpr spaces "-" spaces multOrDivExpr
+        addOrSubExpr = addOp | subOp | multOrDivExpr
+
+        multOrDivExpr = multOrDivExpr spaces "*" spaces positiveNumberLiteral --mult
+        | multOrDivExpr spaces "/" spaces positiveNumberLiteral --div
+        | positiveNumberLiteral
         
     }
 `
@@ -156,6 +160,17 @@ function createParser()
             let op1 = arg1.asIR()[0]
             let op2 = arg2.asIR()[0]
             return [new BinaryOp('-',op1,op2)]
+        }
+        , multOrDivExpr_mult(arg1,_,__,___,arg2) {
+            let op1 = arg1.asIR()[0]
+            let op2 = arg2.asIR()[0]
+            return [new BinaryOp('*',op1,op2)]
+        },
+
+        multOrDivExpr_div(arg1,_,__,___,arg2) {
+            let op1 = arg1.asIR()[0]
+            let op2 = arg2.asIR()[0]
+            return [new BinaryOp('/',op1,op2)]
         }
     })
     

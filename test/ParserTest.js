@@ -262,5 +262,23 @@ describe('Parser', function () {
 
       assert.deepEqual(result,expectedProgram)
     })
+
+    it ("Can parse multiplication",function() {
+      let testProgram = String.raw`
+        fd 10 * 2;
+        rt 5 / .5;
+        rt 10 - 2 * 5;
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      let expectedProgram = new Program([
+        new Forward(binOp('*',number(10),number(2)))
+        , new Right(binOp('/',number(5),number(0.5)))
+        , new Right(binOp('-',number(10),binOp('*',number(2),number(5))))
+      ])
+      assert.deepEqual(result,expectedProgram)
+    })
   });
 });

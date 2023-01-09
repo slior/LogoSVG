@@ -103,3 +103,11 @@ repeat 40
   rt 18;
 end;
 ```
+
+4. Using expressions
+```
+repeat 2*2/1
+  fd 10*5;
+  rt 10 + 240/3;
+end;
+```
