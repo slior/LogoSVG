@@ -44,7 +44,10 @@ const g = String.raw`
         | multOrDivExpr spaces "/" spaces exponentExpr --div
         | exponentExpr
         
-        exponentExpr = exponentExpr spaces "^" spaces positiveNumberLiteral --exp
+        exponentExpr = parentExpr spaces "^" spaces exponentExpr --exp
+        | parentExpr
+
+        parentExpr = "(" spaces expr spaces ")" --parenthesis
         | positiveNumberLiteral
     }
 `
@@ -178,6 +181,10 @@ function createParser()
             let op1 = arg1.asIR()[0]
             let op2 = arg2.asIR()[0]
             return [new BinaryOp('^',op1,op2)]
+        },
+
+        parentExpr_parenthesis(_,__,exp,___,____) {
+            return exp.asIR();
         }
     })
     

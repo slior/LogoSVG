@@ -294,5 +294,21 @@ describe('Parser', function () {
       ])
       assert.deepEqual(result,expectedProgram)
     })
+
+    it("Parses parenthesis correctly",function() {
+      let testProgram = String.raw`
+        fd (10 ^ 2);
+        rt 3^(90/45);
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      let expectedProgram = new Program([
+        new Forward(binOp('^',number(10),number(2)))
+        , new Right(binOp('^',number(3),binOp('/',number(90),number(45))))
+      ])
+      assert.deepEqual(result,expectedProgram)
+    })
   });
 });
