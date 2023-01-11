@@ -66,7 +66,13 @@ describe("Expr Evaluator",function() {
         assert.strictEqual(
             ee.eval(binOp('*',binOp('+',number(4),number(5)),number(3))),
             27)
-        
+    })
 
+    it("Should evaluate an exponent",function() {
+        let ee = new ExprEval()
+
+        assert.strictEqual(
+            ee.eval(binOp('^',number(10),number(3))),
+            1000)
     })
 })

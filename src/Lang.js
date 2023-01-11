@@ -33,7 +33,6 @@ const g = String.raw`
         //A fraction or integer
         positiveFractionLiteral = int? "." int
         positiveNumberLiteral = positiveFractionLiteral | int
-        negativeNumberLiteral = "-" positiveNumberLiteral
 
         //To build precedence into the grammar, each higher precedence operator derives a lower precedence operator
 
@@ -41,10 +40,12 @@ const g = String.raw`
         subOp = addOrSubExpr spaces "-" spaces multOrDivExpr
         addOrSubExpr = addOp | subOp | multOrDivExpr
 
-        multOrDivExpr = multOrDivExpr spaces "*" spaces positiveNumberLiteral --mult
-        | multOrDivExpr spaces "/" spaces positiveNumberLiteral --div
-        | positiveNumberLiteral
+        multOrDivExpr = multOrDivExpr spaces "*" spaces exponentExpr --mult
+        | multOrDivExpr spaces "/" spaces exponentExpr --div
+        | exponentExpr
         
+        exponentExpr = exponentExpr spaces "^" spaces positiveNumberLiteral --exp
+        | positiveNumberLiteral
     }
 `
 
@@ -171,6 +172,12 @@ function createParser()
             let op1 = arg1.asIR()[0]
             let op2 = arg2.asIR()[0]
             return [new BinaryOp('/',op1,op2)]
+        },
+
+        exponentExpr_exp(arg1,_,__,___,arg2) {
+            let op1 = arg1.asIR()[0]
+            let op2 = arg2.asIR()[0]
+            return [new BinaryOp('^',op1,op2)]
         }
     })
     
