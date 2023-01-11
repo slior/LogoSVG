@@ -36,9 +36,9 @@ const g = String.raw`
 
         //To build precedence into the grammar, each higher precedence operator derives a lower precedence operator
 
-        addOp = addOrSubExpr spaces "+" spaces multOrDivExpr
-        subOp = addOrSubExpr spaces "-" spaces multOrDivExpr
-        addOrSubExpr = addOp | subOp | multOrDivExpr
+        addOrSubExpr = addOrSubExpr spaces "+" spaces multOrDivExpr --add
+        | addOrSubExpr spaces "-" spaces multOrDivExpr --sub
+        | multOrDivExpr
 
         multOrDivExpr = multOrDivExpr spaces "*" spaces exponentExpr --mult
         | multOrDivExpr spaces "/" spaces exponentExpr --div
@@ -61,6 +61,11 @@ function createParser()
 {
     let irBuilder = lang.createSemantics();
 
+    const binOpIR = (op,arg1Node,arg2Node) => {
+        let op1 = arg1Node.asIR()[0]
+        let op2 = arg2Node.asIR()[0]
+        return [new BinaryOp(op,op1,op2)]
+    }
     /**
      * As IR turns the tokens into the intermediate reprsentation.
      * It's defined, for each rule, as 
@@ -155,32 +160,22 @@ function createParser()
         , positiveNumberLiteral(someNum) {
             return [someNum.asIR()]
         }
-        , addOp(arg1,_,__,___,arg2) {
-            let op1 = arg1.asIR()[0]
-            let op2 = arg2.asIR()[0]
-            return [new BinaryOp('+',op1,op2)]
+        , addOrSubExpr_add(arg1,_,__,___,arg2) {
+            return binOpIR('+',arg1,arg2)
         }
-        ,subOp (arg1,_,__,___,arg2) {
-            let op1 = arg1.asIR()[0]
-            let op2 = arg2.asIR()[0]
-            return [new BinaryOp('-',op1,op2)]
+        ,addOrSubExpr_sub (arg1,_,__,___,arg2) {
+            return binOpIR('-',arg1,arg2)
         }
         , multOrDivExpr_mult(arg1,_,__,___,arg2) {
-            let op1 = arg1.asIR()[0]
-            let op2 = arg2.asIR()[0]
-            return [new BinaryOp('*',op1,op2)]
+            return binOpIR('*',arg1,arg2)
         },
 
         multOrDivExpr_div(arg1,_,__,___,arg2) {
-            let op1 = arg1.asIR()[0]
-            let op2 = arg2.asIR()[0]
-            return [new BinaryOp('/',op1,op2)]
+            return binOpIR('/',arg1,arg2)
         },
 
         exponentExpr_exp(arg1,_,__,___,arg2) {
-            let op1 = arg1.asIR()[0]
-            let op2 = arg2.asIR()[0]
-            return [new BinaryOp('^',op1,op2)]
+            return binOpIR('^',arg1,arg2)
         },
 
         parentExpr_parenthesis(_,__,exp,___,____) {
