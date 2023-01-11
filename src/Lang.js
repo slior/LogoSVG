@@ -48,6 +48,7 @@ const g = String.raw`
         | parentExpr
 
         parentExpr = "(" spaces expr spaces ")" --parenthesis
+        | "-" spaces parentExpr --negative
         | positiveNumberLiteral
     }
 `
@@ -180,6 +181,12 @@ function createParser()
 
         parentExpr_parenthesis(_,__,exp,___,____) {
             return exp.asIR();
+        },
+
+        parentExpr_negative(_,__,expr) {
+            //rewriting negation for an expression as a multiplication by -1
+            let subExprIR = expr.asIR()[0]
+            return [new BinaryOp("*",new NumberLiteral(-1),subExprIR)]
         }
     })
     

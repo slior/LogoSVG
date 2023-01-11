@@ -309,6 +309,25 @@ describe('Parser', function () {
         , new Right(binOp('^',number(3),binOp('/',number(90),number(45))))
       ])
       assert.deepEqual(result,expectedProgram)
+    }),
+
+    it("Rewrites a negation into -1*expr",function() {
+      let testProgram = String.raw`
+        fd -5;
+        rt 3^(2 + -1);
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      let expectedProgram = new Program([
+        new Forward(binOp('*',number(-1),number(5)))
+        , new Right(binOp('^',number(3),
+                              binOp('+',number(2),
+                                        binOp('*',number(-1),
+                                                  number(1)))))
+      ])
+      assert.deepEqual(result,expectedProgram)
     })
   });
 });
