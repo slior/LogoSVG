@@ -12,23 +12,23 @@ const g = String.raw`
         ProgramElement = SingleCommand | comment
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
-        Command = forward | right | left | Loop | pen_color | pen_up | pen_down | back
+        Command = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back
         
-        forward = "fd" spaces expr
-        back = "bk" spaces expr
-        right = "rt" spaces expr
-        left = "lt" spaces expr
-        pen_color = "pc" spaces color_name
-        pen_up = "pu"
-        pen_down = "pd"
+        Forward = "fd" Expr
+        Back = "bk" Expr
+        Right = "rt" Expr
+        Left = "lt" Expr
+        Pen_color = "pc" color_name
+        Pen_up = "pu"
+        Pen_down = "pd"
         color_name = alnum+ //should be any color allowed in the SVG styling
         int = digit+
 
-        Loop = "repeat" spaces expr ProgramElements "end"
+        Loop = "repeat" Expr ProgramElements "end"
         comment = "//" (~"\n" any)*
 
         ///Arithmetic Expressions
-        expr = addOrSubExpr //Note: this is the lowest precedence, so it derives other higher precedence operations
+        Expr = AddOrSubExpr //Note: this is the lowest precedence, so it derives other higher precedence operations
         
         //A fraction or integer
         positiveFractionLiteral = int? "." int
@@ -36,19 +36,19 @@ const g = String.raw`
 
         //To build precedence into the grammar, each higher precedence operator derives a lower precedence operator
 
-        addOrSubExpr = addOrSubExpr spaces "+" spaces multOrDivExpr --add
-        | addOrSubExpr spaces "-" spaces multOrDivExpr --sub
-        | multOrDivExpr
+        AddOrSubExpr = AddOrSubExpr "+" MultOrDivExpr --add
+        | AddOrSubExpr "-" MultOrDivExpr --sub
+        | MultOrDivExpr
 
-        multOrDivExpr = multOrDivExpr spaces "*" spaces exponentExpr --mult
-        | multOrDivExpr spaces "/" spaces exponentExpr --div
-        | exponentExpr
+        MultOrDivExpr = MultOrDivExpr "*" ExponentExpr --mult
+        | MultOrDivExpr "/" ExponentExpr --div
+        | ExponentExpr
         
-        exponentExpr = parentExpr spaces "^" spaces exponentExpr --exp
-        | parentExpr
+        ExponentExpr = ParentExpr "^" ExponentExpr --exp
+        | ParentExpr
 
-        parentExpr = "(" spaces expr spaces ")" --parenthesis
-        | "-" spaces parentExpr --negative
+        ParentExpr = "(" Expr ")" --parenthesis
+        | "-" ParentExpr --negative
         | positiveNumberLiteral
     }
 `
@@ -73,11 +73,12 @@ function createParser()
      *   asIR: list of tokens => list of IR elements
      */
     irBuilder.addOperation("asIR()",{
-        forward(_, __, howMuch) { 
+        
+        Forward(_, howMuch) { 
             return [new Forward(howMuch.asIR()[0])]
         },
     
-        back(_,__,howMuch) {
+        Back(_,howMuch) {
             //rewriting to right(180)-forward(howMuch)-right(180)
             return [
                 new Right(new NumberLiteral(180)),
@@ -86,22 +87,22 @@ function createParser()
             ]
         },
 
-        right(_, __, howMuch) { 
+        Right(_, howMuch) { 
             return [new Right(howMuch.asIR()[0])]
         }, 
 
-        left(_,__,howMuch) {
+        Left(_,howMuch) {
             //note: rewriting left as a right statement
             let angle = howMuch.asIR()[0];
             return [new Right(new BinaryOp("-",new NumberLiteral(360),angle))]
         },
-        pen_color(_,__,color) {
+        Pen_color(_,color) {
             return [new SetPenColor(color.asIR()[0])]
         },
-        pen_up(_) {
+        Pen_up(_) {
             return [new PenActive(false)];
         },
-        pen_down(_) {
+        Pen_down(_) {
             return [new PenActive(true)];
         },
         color_name(color)
@@ -145,7 +146,7 @@ function createParser()
             return [this.sourceString]
         }
 
-        , Loop(_, __, iters,commandList,___) {
+        , Loop(_, iters,commandList,___) {
             return [new Loop(iters.asIR()[0],commandList.asIR())]
         }
 
@@ -161,29 +162,29 @@ function createParser()
         , positiveNumberLiteral(someNum) {
             return [someNum.asIR()]
         }
-        , addOrSubExpr_add(arg1,_,__,___,arg2) {
+        , AddOrSubExpr_add(arg1,_,arg2) {
             return binOpIR('+',arg1,arg2)
         }
-        ,addOrSubExpr_sub (arg1,_,__,___,arg2) {
+        , AddOrSubExpr_sub (arg1,_,arg2) {
             return binOpIR('-',arg1,arg2)
         }
-        , multOrDivExpr_mult(arg1,_,__,___,arg2) {
+        , MultOrDivExpr_mult(arg1,_,arg2) {
             return binOpIR('*',arg1,arg2)
         },
 
-        multOrDivExpr_div(arg1,_,__,___,arg2) {
+        MultOrDivExpr_div(arg1,_,arg2) {
             return binOpIR('/',arg1,arg2)
         },
 
-        exponentExpr_exp(arg1,_,__,___,arg2) {
+        ExponentExpr_exp(arg1,__,arg2) {
             return binOpIR('^',arg1,arg2)
         },
 
-        parentExpr_parenthesis(_,__,exp,___,____) {
+        ParentExpr_parenthesis(_,exp,__) {
             return exp.asIR();
         },
 
-        parentExpr_negative(_,__,expr) {
+        ParentExpr_negative(_,expr) {
             //rewriting negation for an expression as a multiplication by -1
             let subExprIR = expr.asIR()[0]
             return [new BinaryOp("*",new NumberLiteral(-1),subExprIR)]
