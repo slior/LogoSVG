@@ -152,7 +152,35 @@ class BinaryOp extends Expr
     get operand2() { return this._op2 }
 }
 
+class VarEvaluation extends Expr
+{
+    constructor(_varName)
+    {
+        super();
+        assertNotNull(_varName)
+        this._varName = _varName
+    }
 
+    get varName() { return this._varName }
+}
+
+class VarDecl extends Action
+{
+    constructor(_varName,_initialValueExpr)
+    {
+        super(VarDecl.action)
+        assertNotNull(_varName)
+        assertNotNull(_initialValueExpr)
+
+        this._varName = _varName;
+        this._initialValueExpr = _initialValueExpr
+    }
+
+    get varName() { return this._varName }
+    get initializer() { return this._initialValueExpr }
+}
+
+VarDecl.action = 'VarDecl'
 
 module.exports = {
     Forward,
@@ -163,5 +191,7 @@ module.exports = {
     PenActive,
     Comment,
     BinaryOp,
-    NumberLiteral
+    NumberLiteral,
+    VarDecl,
+    VarEvaluation
 }

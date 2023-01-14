@@ -2,7 +2,7 @@
 const assert = require('assert')
 const { SVG } = require('@svgdotjs/svg.js')
 const {assertNonNegativeNum,assertNotNull} = require("./util")
-const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp} = require("./IR")
+const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp, VarDecl,VarEvaluation} = require("./IR")
 
 var COMMAND_MAP = null;
 
@@ -16,6 +16,7 @@ function commandMap(processor)
         commands[Loop.action] = (st,vms) => { return processor.loop(st.iterCount,st.statements,vms); }
         commands[SetPenColor.action] = (st,vms) => { return processor.setPenColor(st.penColor, vms); }
         commands[PenActive.action] = (st,vms) => { return processor.setPenActive(st.isActive, vms); }
+        commands[VarDecl.action] = (st,vms) => processor.declareVar(st,vms)
         COMMAND_MAP = commands;
     }
     return COMMAND_MAP
@@ -28,13 +29,14 @@ class ExprEval
     constructor() 
     { 
         this.handlersByType = {}
-        this.handlersByType[NumberLiteral.name] = (e) => this.evalNumberLiteral(e)
-        this.handlersByType[BinaryOp.name] = (e) => this.evalBinOp(e)
+        this.handlersByType[NumberLiteral.name] = (e,vmState) => this.evalNumberLiteral(e,vmState)
+        this.handlersByType[BinaryOp.name] = (e,vmState) => this.evalBinOp(e,vmState)
+        this.handlersByType[VarEvaluation.name] = (e,vmState) => this.evalVar(e,vmState)
     }
 
-    eval(expr) 
+    eval(expr,vmState) 
     {
-        return this.findEvalFuncFor(expr).apply(this,[expr])
+        return this.findEvalFuncFor(expr).apply(this,[expr,vmState])
     }
 
     findEvalFuncFor(expr)
@@ -46,17 +48,17 @@ class ExprEval
             throw new Error("Can't find handler for expression")
     }
 
-    evalNumberLiteral(numExp)
+    evalNumberLiteral(numExp,_)
     {
         assert(numExp instanceof NumberLiteral,"expression must be number literal")
         return numExp.number;
     }
 
-    evalBinOp(binOpExp)
+    evalBinOp(binOpExp,vmState)
     {
         assert(binOpExp instanceof BinaryOp,"expression must be a binary operation")
-        let arg1 = this.eval(binOpExp.operand1)
-        let arg2 = this.eval(binOpExp.operand2)
+        let arg1 = this.eval(binOpExp.operand1,vmState)
+        let arg2 = this.eval(binOpExp.operand2,vmState)
         switch (binOpExp.operator)
         {
             case '+' : return arg1 + arg2;
@@ -66,6 +68,12 @@ class ExprEval
             case '^' : return Math.pow(arg1,arg2);
             default : throw new Error(`Unknown binary operator ${binOpExp.operator}`)
         }
+    }
+
+    evalVar(varExpr,vmState)
+    {
+        assert(varExpr instanceof VarEvaluation,"Expected var invocation")
+        return vmState.valueOf(varExpr.varName)
     }
 }
 
@@ -108,9 +116,15 @@ class LogoVM
         }
     }
 
+    declareVar(varDecl,vmState)
+    {
+        let initialValue = this.exprEvaluator.eval(varDecl.initializer,vmState)
+        return vmState.withNewVar(varDecl.varName,initialValue)
+    }
+
     forward(len,vmState)
     {
-        let howMuch = this.exprEvaluator.eval(len)
+        let howMuch = this.exprEvaluator.eval(len,vmState)
         assertNonNegativeNum(howMuch,`Forward can only accept non-negative values. Got ${howMuch}; (maybe as result of expression evaluation?)`)
         let x2 = vmState.lastX + howMuch * Math.cos(vmState.radianAngle())
         let y2 = vmState.lastY + howMuch * Math.sin(vmState.radianAngle())
@@ -121,14 +135,14 @@ class LogoVM
 
     right(angle,vmState)
     {
-        let actualAngle = this.exprEvaluator.eval(angle)
+        let actualAngle = this.exprEvaluator.eval(angle,vmState)
         assertNonNegativeNum(actualAngle,`Angle must be non-negative. Got ${actualAngle}; (maybe as result of expression evaluation?)`)
         return vmState.withAngle(vmState.angle + actualAngle)
     }
 
     loop(_iterCount,statements,vmState)
     {
-        let iterCount = this.exprEvaluator.eval(_iterCount)
+        let iterCount = this.exprEvaluator.eval(_iterCount,vmState)
         assertNonNegativeNum(iterCount)
         var iters = iterCount
         var stateForIteration = vmState

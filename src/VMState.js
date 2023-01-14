@@ -16,7 +16,7 @@ const DEFAULT_PEN_COLOR = "black";
 
 class VMState
 {
-    constructor(x,y,_angle,_lastX = undefined, _lastY = undefined, _pc = undefined, _pa = undefined)
+    constructor(x,y,_angle,_lastX = undefined, _lastY = undefined, _pc = undefined, _pa = undefined,_varValues = undefined)
     {
         assertInRange(x,BOUNDS.X_LOW,BOUNDS.X_HIGH);
         assertInRange(y,BOUNDS.Y_LOW,BOUNDS.Y_HIGH);
@@ -30,6 +30,7 @@ class VMState
         this.angle = _angle;
         this._penColor = ifUndefined(_pc,DEFAULT_PEN_COLOR)
         this._penActive = ifUndefined(_pa,true);
+        this._varValues = ifUndefined(_varValues,{})
     }
 
     static newFromExisting (otherVmState,overridden) //to be used internally, when creating new instances
@@ -41,7 +42,8 @@ class VMState
         let angle = ifUndefined(overridden.angle,otherVmState.angle);
         let _penColor = ifUndefined(overridden.penColor,otherVmState.penColor)
         let penActive = ifUndefined(overridden.penActive,otherVmState.penActive)
-        return new VMState(originalX,originalY,angle,lastX,lastY,_penColor,penActive)
+        let varValues = ifUndefined(overridden.varValues,otherVmState.varValues)
+        return new VMState(originalX,originalY,angle,lastX,lastY,_penColor,penActive,varValues)
     }
 
     /**
@@ -75,6 +77,28 @@ class VMState
 
     get penActive() { return this._penActive }
     withPenActive(b) { return VMState.newFromExisting(this,{penActive : b})}
+
+    withNewVar(varName,initialValue) 
+    {
+        if (!this._isDefined(varName))
+        {
+            let newVarValues = Object.assign({},this.varValues)
+            newVarValues[varName] = initialValue
+            return VMState.newFromExisting(this,{varValues : newVarValues})
+        }
+        else throw new Error(`Variable ${varName} already declared`)
+    }
+
+    get varValues() { return this._varValues}
+
+    valueOf(varName)
+    {
+        if (this._isDefined(varName))
+            return this.varValues[varName]
+        else throw new Error(`Undefined variable ${varName}`)
+    }
+
+    _isDefined(varName) { return this.varValues[varName] !== undefined }
 }
 
 module.exports = {

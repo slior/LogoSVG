@@ -117,4 +117,29 @@ describe("VMState",function() {
 
 
     })
+
+    it("Defines variable",function() {
+        let vms = new VMState(10,20,90,10,20,"blue",true,{reps : 10})
+        assert.strictEqual(vms._isDefined("reps"),true)
+        assert.strictEqual(vms._isDefined("notdefined"),false)
+
+        let vms2 = vms.withNewVar("newvar",5)
+        assert.strictEqual(vms2._isDefined("reps"),true)
+        assert.strictEqual(vms._isDefined("newvar"),false)
+        assert.strictEqual(vms2._isDefined("newvar"),true)
+        assert.notStrictEqual(vms,vms2)
+    })
+
+    it("Retrieves declared variables correctly",function() {
+        let vms = new VMState(10,20,90)
+        let vms2 = vms.withNewVar("reps",10)
+        assert.strictEqual(vms2.valueOf("reps"),10)
+    })
+
+    it("Fails when trying to retrieve vlaue of undeclared variable",function() {
+        let vms = new VMState(10,20,90)
+        assert.throws(() => {
+            vms.valueOf("undeclared_var")
+        }, /Undefined variable undeclared_var/,"retrieving undeclared var - should fail")
+    })
 })

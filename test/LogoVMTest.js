@@ -2,7 +2,7 @@ const assert = require('assert');
 const { LogoVM } = require('../src/LogoVM')
 const { VMState } = require('../src/VMState')
 const { number } = require("./util")
-const {Forward} = require('../src/IR')
+const {Forward,VarDecl,VarEvaluation} = require('../src/IR')
 
 const createMockVMImpl = (drawingEl) => { return {
     line : (x1,y1,x2,y2) => {
@@ -103,6 +103,23 @@ describe("LogoVM",function() {
                 let s2 = vm.loop(number(itercount),statements,s1)
             }, /-3 is negative/, "negative value for iteration count")
     
+        })
+    })
+
+    describe("variables",function() {
+        it("defines a new variable on the state",function() {
+            let vm = new LogoVM({},createMockVMImpl)
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.declareVar(new VarDecl("newvar",number(5)),s1)
+            assert.strictEqual(s2.valueOf("newvar"),5)
+        })
+
+        it("Evaluates a declared variable",function() {
+            let vm = new LogoVM({},createMockVMImpl)
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.declareVar(new VarDecl("newvar",number(5)),s1)
+            let s3 = vm.forward(new VarEvaluation("newvar"),s2)
+            assert.strictEqual(s3.lastX,200+5)//the original 200 x location + 5 as value of 'newvar'
         })
     })
 })
