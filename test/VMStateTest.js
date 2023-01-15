@@ -136,7 +136,7 @@ describe("VMState",function() {
         assert.strictEqual(vms2.valueOf("reps"),10)
     })
 
-    it("Fails when trying to retrieve vlaue of undeclared variable",function() {
+    it("Fails when trying to retrieve value of undeclared variable",function() {
         let vms = new VMState(10,20,90)
         assert.throws(() => {
             vms.valueOf("undeclared_var")
