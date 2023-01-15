@@ -129,3 +129,15 @@ repeat iters
   rt 360/iters;
 end;
 ```
+
+```
+let sides = 5;
+
+repeat 12
+  repeat sides
+    fd 50;
+    rt 360/sides;
+  end;
+  sides = sides + 1;
+end;
+```
