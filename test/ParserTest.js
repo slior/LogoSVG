@@ -3,6 +3,13 @@ const { createParser } = require("../src/Lang.js")
 const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarDecl,VarEvaluation,VarAssign} = require("../src/IR");
 const {number,binOp} = require("./util")
 
+function parseAndCompare(testSource,expectedIR) 
+{
+  let p = createParser()
+  let result = p(testSource)
+  assert.deepStrictEqual(result,expectedIR)
+}
+
 describe('Parser', function () {
   describe('Language Parser', function () {
     it('successfully parses a simple square drawing program', function () {
@@ -16,20 +23,17 @@ describe('Parser', function () {
         rt 90;
         fd 100;
       `
-
-      let p = createParser()
-
-      let result = p(testProgram)
-
-      assert.deepEqual(result,new Program([
-        new Forward(number(100)),
-        new Right(number(90)),
-        new Forward(number(100)),
-        new Right(number(90)),
-        new Forward(number(100)),
-        new Right(number(90)),
-        new Forward(number(100))
-      ]))
+      parseAndCompare(testProgram,
+                      new Program([
+                        new Forward(number(100)),
+                        new Right(number(90)),
+                        new Forward(number(100)),
+                        new Right(number(90)),
+                        new Forward(number(100)),
+                        new Right(number(90)),
+                        new Forward(number(100))
+                      ])
+                    )
     });
 
     it('Can parse a loop',function() {
@@ -39,16 +43,14 @@ describe('Parser', function () {
           rt 90;
         end;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
-      assert.deepEqual(result,new Program([
-        new Loop(number(4),[
-          new Forward(number(100)),
-          new Right(number(90))
-        ])
-      ]))
+      parseAndCompare(testProgram,
+                      new Program([
+                        new Loop(number(4),[
+                          new Forward(number(100)),
+                          new Right(number(90))
+                        ])
+                      ])
+                    )
     });
 
     it ('Can parse a pen color statement',function() {
@@ -58,17 +60,15 @@ describe('Parser', function () {
           pc red;
           fd 100;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
-      assert.deepEqual(result,new Program([
-        new Forward(number(100)),
-        new Right(number(90)),
-        new SetPenColor("red"),
-        new Forward(number(100))
-
-      ]))
+      parseAndCompare(testProgram,
+                      new Program([
+                        new Forward(number(100)),
+                        new Right(number(90)),
+                        new SetPenColor("red"),
+                        new Forward(number(100))
+                
+                      ])
+                    )
     });
 
     it('Can parse a nested loop', function() {
@@ -81,20 +81,17 @@ describe('Parser', function () {
             rt 45;
           end;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
-      assert.deepEqual(result,new Program([
-        new Loop(number(6),[
-          new Loop(number(4),[
-            new Forward(number(50)),
-            new Right(number(90))
-          ]),
-          new Right(number(45))
-        ])
-      ]))
-
+      parseAndCompare(testProgram,
+                      new Program([
+                        new Loop(number(6),[
+                          new Loop(number(4),[
+                            new Forward(number(50)),
+                            new Right(number(90))
+                          ]),
+                          new Right(number(45))
+                        ])
+                      ])
+                    )
     });
 
     it ("Can parse a 'left' as an opposite of 'right'", function() {
@@ -104,17 +101,14 @@ describe('Parser', function () {
         lt 45;
         fd 50;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
-      assert.deepEqual(result,new Program([
-        new Forward(number(50)),
-        new Right(number(90))
-        , new Right(binOp("-",number(360),number(45)))
-        , new Forward(number(50))
-      ]))
-
+      parseAndCompare(testProgram,
+                      new Program([
+                        new Forward(number(50)),
+                        new Right(number(90))
+                        , new Right(binOp("-",number(360),number(45)))
+                        , new Forward(number(50))
+                      ])
+                    )
     });
 
     it("Can parse a pen up and down statements correctly", function() {
@@ -125,10 +119,6 @@ describe('Parser', function () {
         pd;
         fd 50;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new Forward(number(50)),
         new PenActive(false),
@@ -137,9 +127,8 @@ describe('Parser', function () {
         new Forward(number(50))
       ])
 
-      assert.equal(expectedProgram.statements[1].isActive,false)
-
-      assert.deepEqual(result,expectedProgram)
+      assert.equal(expectedProgram.statements[1].isActive,false) //testing the IR
+      parseAndCompare(testProgram,expectedProgram)
     });
 
     it("Can parse a comment successfully", function() {
@@ -158,10 +147,6 @@ describe('Parser', function () {
         end;
         //Done!
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new Comment(" forward 50"),
         new Forward(number(50)),
@@ -178,7 +163,7 @@ describe('Parser', function () {
         new Comment("Done!")
       ])
 
-      assert.deepEqual(result,expectedProgram)
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it("Can parse a back command properly",function() {
@@ -189,7 +174,6 @@ describe('Parser', function () {
         end;
 
       `
-
       let expectedProgram = new Program([
         new Loop(number(4),[
           new Right(number(180)),
@@ -199,10 +183,7 @@ describe('Parser', function () {
         ])
       ])
 
-      let p = createParser()
-      let result = p(testProgram)
-
-      assert.deepEqual(result,expectedProgram)
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it("Can parse a simple number literal", function() {
@@ -211,16 +192,13 @@ describe('Parser', function () {
         fd .5;
         fd 50;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new Forward(number(10.1))
         , new Forward(number(0.5))
         , new Forward(number(50))
       ])
-      assert.deepEqual(result,expectedProgram)
+
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it ("Can parse a binary operator expression when a number is expected", function() {
@@ -229,16 +207,13 @@ describe('Parser', function () {
         rt 5 - .5;
         rt 10 - 2 + 5;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new Forward(binOp('+',number(10),number(2)))
         , new Right(binOp('-',number(5),number(0.5)))
         , new Right(binOp('+',binOp('-',number(10),number(2)),number(5)))
       ])
-      assert.deepEqual(result,expectedProgram)
+      
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it("Can parse a loop with an expression",function() {
@@ -257,10 +232,7 @@ describe('Parser', function () {
         ])
       ])
 
-      let p = createParser()
-      let result = p(testProgram)
-
-      assert.deepEqual(result,expectedProgram)
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it ("Can parse multiplication and division",function() {
@@ -269,30 +241,24 @@ describe('Parser', function () {
         rt 5 / .5;
         rt 10 - 2 * 5;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new Forward(binOp('*',number(10),number(2)))
         , new Right(binOp('/',number(5),number(0.5)))
         , new Right(binOp('-',number(10),binOp('*',number(2),number(5))))
       ])
-      assert.deepEqual(result,expectedProgram)
+
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it("Can parse an exponent",function() {
       let testProgram = String.raw`
         fd 10 ^ 2;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new Forward(binOp('^',number(10),number(2)))
       ])
-      assert.deepEqual(result,expectedProgram)
+
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it("Parses parenthesis correctly",function() {
@@ -301,14 +267,12 @@ describe('Parser', function () {
         rt 3^(90/45);
       `
 
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new Forward(binOp('^',number(10),number(2)))
         , new Right(binOp('^',number(3),binOp('/',number(90),number(45))))
       ])
-      assert.deepEqual(result,expectedProgram)
+
+      parseAndCompare(testProgram,expectedProgram)
     }),
 
     it("Rewrites a negation into -1*expr",function() {
@@ -316,10 +280,6 @@ describe('Parser', function () {
         fd -5;
         rt 3^(2 + -1);
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new Forward(binOp('*',number(-1),number(5)))
         , new Right(binOp('^',number(3),
@@ -327,22 +287,19 @@ describe('Parser', function () {
                                         binOp('*',number(-1),
                                                   number(1)))))
       ])
-      assert.deepEqual(result,expectedProgram)
+      
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it("Parses a variable declaration correctly",function() {
       let testProgram = String.raw`
         let iterations = 5;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new VarDecl("iterations",number(5))
       ])
 
-      assert.deepStrictEqual(result,expectedProgram)
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it("Parses an expression with a variable correctly",function() {
@@ -353,10 +310,6 @@ describe('Parser', function () {
           rt 360 / iterations;
         end;
       `
-
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new VarDecl("iterations",number(5))
         , new Loop(new VarEvaluation("iterations"),[
@@ -365,7 +318,7 @@ describe('Parser', function () {
         ])
       ])
 
-      assert.deepStrictEqual(result,expectedProgram)
+      parseAndCompare(testProgram,expectedProgram)
     })
 
     it("Parses a variable assignment correctly",function() {
@@ -373,15 +326,12 @@ describe('Parser', function () {
         let iterations = 5;
         iterations = 9;
       `
-      let p = createParser()
-      let result = p(testProgram)
-
       let expectedProgram = new Program([
         new VarDecl("iterations",number(5))
         , new VarAssign("iterations",number(9))
       ])
 
-      assert.deepStrictEqual(result,expectedProgram)
+      parseAndCompare(testProgram,expectedProgram)
     })
   });
 });
