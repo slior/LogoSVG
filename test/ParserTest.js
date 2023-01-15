@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { createParser } = require("../src/Lang.js")
-const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral} = require("../src/IR");
+const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarDecl,VarEvaluation} = require("../src/IR");
 const {number,binOp} = require("./util")
 
 describe('Parser', function () {
@@ -328,6 +328,44 @@ describe('Parser', function () {
                                                   number(1)))))
       ])
       assert.deepEqual(result,expectedProgram)
+    })
+
+    it("Parses a variable declaration correctly",function() {
+      let testProgram = String.raw`
+        let iterations = 5;
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      let expectedProgram = new Program([
+        new VarDecl("iterations",number(5))
+      ])
+
+      assert.deepStrictEqual(result,expectedProgram)
+    })
+
+    it("Parses an expression with a variable correctly",function() {
+      let testProgram = String.raw`
+        let iterations = 5;
+        repeat iterations
+          fd 10;
+          rt 360 / iterations;
+        end;
+      `
+
+      let p = createParser()
+      let result = p(testProgram)
+
+      let expectedProgram = new Program([
+        new VarDecl("iterations",number(5))
+        , new Loop(new VarEvaluation("iterations"),[
+          new Forward(number(10)),
+          new Right(new BinaryOp('/',number(360),new VarEvaluation("iterations")))
+        ])
+      ])
+
+      assert.deepStrictEqual(result,expectedProgram)
     })
   });
 });

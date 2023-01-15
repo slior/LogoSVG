@@ -72,7 +72,7 @@ class ExprEval
 
     evalVar(varExpr,vmState)
     {
-        assert(varExpr instanceof VarEvaluation,"Expected var invocation")
+        assert(varExpr instanceof VarEvaluation,"Expected var evaluation")
         return vmState.valueOf(varExpr.varName)
     }
 }

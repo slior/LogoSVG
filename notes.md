@@ -118,3 +118,14 @@ repeat 5
  rt 360/5;
 end;
 ```
+
+5. Using a variable
+
+```
+
+let iters = 7;
+repeat iters
+  fd 50;
+  rt 360/iters;
+end;
+```

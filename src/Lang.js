@@ -2,7 +2,7 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral} = require("./IR")
+const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarEvaluation,VarDecl} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
@@ -12,7 +12,7 @@ const g = String.raw`
         ProgramElement = SingleCommand | comment
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
-        Command = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back
+        Command = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl
         
         Forward = "fd" Expr
         Back = "bk" Expr
@@ -49,7 +49,15 @@ const g = String.raw`
 
         ParentExpr = "(" Expr ")" --parenthesis
         | "-" ParentExpr --negative
+        | ident --var
         | positiveNumberLiteral
+        
+        identStart = "_" | letter
+        identChar = "_" | alnum
+
+        ident = identStart identChar*
+
+        VarDecl = "let" ident "=" Expr
     }
 `
 
@@ -188,6 +196,21 @@ function createParser()
             //rewriting negation for an expression as a multiplication by -1
             let subExprIR = expr.asIR()[0]
             return [new BinaryOp("*",new NumberLiteral(-1),subExprIR)]
+        },
+
+        ParentExpr_var(varEval) {
+            return [new VarEvaluation(varEval.asIR()[0])]
+        },
+
+        VarDecl(_,_varName,__,initializerExpr) {
+            let varName = _varName.asIR()[0]
+            let initExpr = initializerExpr.asIR()[0]
+            return [new VarDecl(varName,initExpr)]
+        },
+
+        ident(firstChar,restOfChars) {
+            let identifier = firstChar.sourceString + restOfChars.sourceString
+            return [identifier]
         }
     })
     
