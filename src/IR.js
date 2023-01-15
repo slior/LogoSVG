@@ -182,6 +182,24 @@ class VarDecl extends Action
 
 VarDecl.action = 'VarDecl'
 
+class VarAssign extends Action
+{
+    constructor(_varName,_assignedExpr)
+    {
+        super(VarAssign.action)
+        assertNotNull(_varName)
+        assertNotNull(_assignedExpr)
+
+        this._varName = _varName;
+        this._assignedExpr = _assignedExpr
+    }
+
+    get varName() { return this._varName }
+    get rhs() { return this._assignedExpr} //right hand side of the assignment
+}
+
+VarAssign.action = 'VarAssign'
+
 module.exports = {
     Forward,
     Right,
@@ -193,5 +211,6 @@ module.exports = {
     BinaryOp,
     NumberLiteral,
     VarDecl,
-    VarEvaluation
+    VarEvaluation,
+    VarAssign
 }

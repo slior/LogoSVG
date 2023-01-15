@@ -2,7 +2,7 @@ const assert = require('assert');
 const { LogoVM } = require('../src/LogoVM')
 const { VMState } = require('../src/VMState')
 const { number } = require("./util")
-const {Forward,VarDecl,VarEvaluation} = require('../src/IR')
+const {Forward,VarDecl,VarEvaluation,VarAssign} = require('../src/IR')
 
 const createMockVMImpl = (drawingEl) => { return {
     line : (x1,y1,x2,y2) => {
@@ -120,6 +120,27 @@ describe("LogoVM",function() {
             let s2 = vm.declareVar(new VarDecl("newvar",number(5)),s1)
             let s3 = vm.forward(new VarEvaluation("newvar"),s2)
             assert.strictEqual(s3.lastX,200+5)//the original 200 x location + 5 as value of 'newvar'
+        })
+
+        it("Assigns a new value to a declared variable",function() {
+            let vm = new LogoVM({},createMockVMImpl)
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.declareVar(new VarDecl("newvar",number(5)),s1)
+            let s3 = vm.forward(new VarEvaluation("newvar"),s2)
+            assert.strictEqual(s3.lastX,200+5)//the original 200 x location + 5 as value of 'newvar'
+            let s4 = vm.assignVar(new VarAssign("newvar",number(8)),s3)
+            assert.strictEqual(s4.valueOf("newvar"),8)
+            let s5 = vm.forward(new VarEvaluation("newvar"),s4)
+            assert.strictEqual(s5.lastX,200+5+8)//the original 200 x location + 5 as value of 'newvar' + 8 as new value of 'newvar'
+
+        })
+
+        it ("Rejects an assignment to undeclared variable",function() {
+            assert.throws(() => {
+                let vm = new LogoVM({},createMockVMImpl)
+                let s1 = new VMState(200,300,0)
+                let s2 = vm.assignVar(new VarAssign("newvar",number(8)),s1)
+            },/Can't assign value to undeclared variable 'newvar'/,"assignment to undeclared variable")
         })
     })
 })

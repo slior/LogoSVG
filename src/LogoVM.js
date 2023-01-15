@@ -2,7 +2,7 @@
 const assert = require('assert')
 const { SVG } = require('@svgdotjs/svg.js')
 const {assertNonNegativeNum,assertNotNull} = require("./util")
-const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp, VarDecl,VarEvaluation} = require("./IR")
+const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp, VarDecl,VarEvaluation,VarAssign} = require("./IR")
 
 var COMMAND_MAP = null;
 
@@ -17,6 +17,7 @@ function commandMap(processor)
         commands[SetPenColor.action] = (st,vms) => { return processor.setPenColor(st.penColor, vms); }
         commands[PenActive.action] = (st,vms) => { return processor.setPenActive(st.isActive, vms); }
         commands[VarDecl.action] = (st,vms) => processor.declareVar(st,vms)
+        commands[VarAssign.action] = (st,vms) => processor.assignVar(st,vms)
         COMMAND_MAP = commands;
     }
     return COMMAND_MAP
@@ -120,6 +121,12 @@ class LogoVM
     {
         let initialValue = this.exprEvaluator.eval(varDecl.initializer,vmState)
         return vmState.withNewVar(varDecl.varName,initialValue)
+    }
+
+    assignVar(varAssignment,vmState)
+    {
+        let value = this.exprEvaluator.eval(varAssignment.rhs,vmState)
+        return vmState.withVarValue(varAssignment.varName,value)
     }
 
     forward(len,vmState)

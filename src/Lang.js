@@ -2,7 +2,7 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarEvaluation,VarDecl} = require("./IR")
+const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarEvaluation,VarDecl,VarAssign} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
@@ -12,7 +12,7 @@ const g = String.raw`
         ProgramElement = SingleCommand | comment
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
-        Command = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl
+        Command = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl | VarAssign
         
         Forward = "fd" Expr
         Back = "bk" Expr
@@ -58,6 +58,8 @@ const g = String.raw`
         ident = identStart identChar*
 
         VarDecl = "let" ident "=" Expr
+
+        VarAssign = ident "=" Expr
     }
 `
 
@@ -207,6 +209,12 @@ function createParser()
             let initExpr = initializerExpr.asIR()[0]
             return [new VarDecl(varName,initExpr)]
         },
+        
+        VarAssign(_varName,_,_rhs) {
+            let varName = _varName.asIR()[0]
+            let rhs = _rhs.asIR()[0]
+            return [new VarAssign(varName,rhs)]
+        }, 
 
         ident(firstChar,restOfChars) {
             let identifier = firstChar.sourceString + restOfChars.sourceString

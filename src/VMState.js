@@ -82,11 +82,16 @@ class VMState
     {
         if (!this._isDefined(varName))
         {
-            let newVarValues = Object.assign({},this.varValues)
-            newVarValues[varName] = initialValue
-            return VMState.newFromExisting(this,{varValues : newVarValues})
+            return this._newStateWithModifiedVar(varName,initialValue)
         }
         else throw new Error(`Variable ${varName} already declared`)
+    }
+
+    withVarValue(varName,value)
+    {
+        if (this._isDefined(varName))
+            return this._newStateWithModifiedVar(varName,value)
+        else throw new Error(`Can't assign value to undeclared variable '${varName}'`)
     }
 
     get varValues() { return this._varValues}
@@ -99,6 +104,12 @@ class VMState
     }
 
     _isDefined(varName) { return this.varValues[varName] !== undefined }
+
+    _newStateWithModifiedVar(varName,value) {
+        let newVarValues = Object.assign({},this.varValues)
+        newVarValues[varName] = value
+        return VMState.newFromExisting(this,{varValues : newVarValues})
+    }
 }
 
 module.exports = {
