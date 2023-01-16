@@ -13,7 +13,7 @@ class Comment
 }
 
 
-class Action
+class Statement
 {
     constructor (act)
     {
@@ -27,7 +27,7 @@ class Action
     }
 }
 
-class Forward extends Action
+class Forward extends Statement
 {
     
     constructor (__howMuch)
@@ -45,7 +45,7 @@ class Forward extends Action
 
 Forward.action = 'fd'
 
-class Right extends Action
+class Right extends Statement
 {
     constructor(_howMuch)
     {
@@ -56,7 +56,7 @@ class Right extends Action
 }
 Right.action = 'rt'
 
-class SetPenColor extends Action
+class SetPenColor extends Statement
 {
     constructor(newColor)
     {
@@ -68,7 +68,7 @@ class SetPenColor extends Action
 }
 SetPenColor.action = "pc"
 
-class PenActive extends Action
+class PenActive extends Statement
 {
     constructor(isUp)
     {
@@ -94,7 +94,7 @@ class Block
 }
 
 
-class Loop extends Action
+class Loop extends Statement
 {
     constructor(_iterCount,_stmts)
     {
@@ -164,7 +164,7 @@ class VarEvaluation extends Expr
     get varName() { return this._varName }
 }
 
-class VarDecl extends Action
+class VarDecl extends Statement
 {
     constructor(_varName,_initialValueExpr)
     {
@@ -182,7 +182,7 @@ class VarDecl extends Action
 
 VarDecl.action = 'VarDecl'
 
-class VarAssign extends Action
+class VarAssign extends Statement
 {
     constructor(_varName,_assignedExpr)
     {

@@ -8,11 +8,11 @@ const g = String.raw`
     LogoSVG {
         Program = ProgramElements
         
-        SingleCommand = Command ";"
-        ProgramElement = SingleCommand | comment
+        SingleStatement = Statement ";"
+        ProgramElement = SingleStatement | comment
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
-        Command = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl | VarAssign
+        Statement = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl | VarAssign
         
         Forward = "fd" Expr
         Back = "bk" Expr
@@ -120,11 +120,11 @@ function createParser()
             return [color.sourceString]
         },
     
-        Command(c) {
+        Statement(c) {
             return c.asIR();
         },
 
-        SingleCommand(c,_)
+        SingleStatement(c,_)
         {
             return c.asIR();
         },
