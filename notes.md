@@ -141,3 +141,17 @@ repeat 12
   sides = sides + 1;
 end;
 ```
+
+6. A branch statement
+
+```
+  let iters = 5;
+  if iters =/= 0 then
+    repeat iters
+      fd 50;
+      rt 90;
+    end;
+  else
+    fd 100;
+  end;
+```

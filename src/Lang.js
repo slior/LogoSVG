@@ -2,7 +2,7 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarEvaluation,VarDecl,VarAssign} = require("./IR")
+const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarEvaluation,VarDecl,VarAssign,Branch} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
@@ -12,7 +12,7 @@ const g = String.raw`
         ProgramElement = SingleStatement | comment
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
-        Statement = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl | VarAssign
+        Statement = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl | VarAssign | Branch
 
         fd = "fd"
         bk = "bk"
@@ -22,10 +22,13 @@ const g = String.raw`
         pu = "pu"
         pd = "pd"
         repeat = "repeat"
-        loop_end = "end"
+        block_end = "end"
         let = "let"
+        if = "if"
+        then = "then"
+        else = "else"
 
-        reserved_word = fd | bk | rt | lt | pc | pu | pd | repeat | loop_end | let
+        reserved_word = fd | bk | rt | lt | pc | pu | pd | repeat | block_end | let | if | then | else
 
         Forward = fd Expr
         Back = bk Expr
@@ -35,11 +38,16 @@ const g = String.raw`
         Pen_up = pu
         Pen_down = pd
 
-
         color_name = alnum+ //should be any color allowed in the SVG styling
         int = digit+
 
-        Loop = repeat Expr ProgramElements loop_end
+        Loop = repeat Expr ProgramElements block_end
+
+        ComparisonOp = "<" | ">" | "<=" | ">=" | "==" | "=/="
+        ComparisonExpr = Expr ComparisonOp Expr
+        Branch = if ComparisonExpr then ProgramElements block_end --then
+        | if ComparisonExpr then ProgramElements else ProgramElements block_end --else
+
         comment = "//" (~"\n" any)*
 
         ///Arithmetic Expressions
@@ -235,6 +243,22 @@ function createParser()
         full_ident(firstChar,restOfChars) {
             let identifier = firstChar.sourceString + restOfChars.sourceString
             return [identifier]
+        },
+
+        ComparisonExpr(arg1,op,arg2) {
+            let op1 = arg1.asIR()[0]
+            let op2 = arg2.asIR()[0]
+            let operand = op.sourceString
+            let expr = new BinaryOp(operand,op1,op2)
+            return [expr]
+        },
+
+        Branch_then(_,compExpr,__,thenStmts,___) {
+            return [new Branch(compExpr.asIR()[0],thenStmts.asIR())]
+        },
+
+        Branch_else(_,compExpr,__,thenStmts,___,elseStmts,____) {
+            return [new Branch(compExpr.asIR()[0],thenStmts.asIR(),elseStmts.asIR())]
         }
     })
     

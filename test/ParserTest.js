@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { createParser } = require("../src/Lang.js")
-const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarDecl,VarEvaluation,VarAssign} = require("../src/IR");
+const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarDecl,VarEvaluation,VarAssign,Branch} = require("../src/IR");
 const {number,binOp} = require("./util")
 
 function parseAndCompare(testSource,expectedIR) 
@@ -353,6 +353,62 @@ describe('Parser', function () {
       },/not a reserved_word/,"trying to parse 'repeat' as a variable name")
 
 
+    })
+
+    it("Parses a simple branch correctly",function() {
+      let testSource = String.raw`
+        if 4 == 5 then
+          fd 50;
+        end;
+      `
+
+      let expectedProgram = new Program([
+        new Branch(binOp('==',number(4),number(5)),[new Forward(number(50))])
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("Parses an if-else correctly",function() {
+      let testSource = String.raw`
+        if 4 == 5 then
+          fd 50;
+        else
+          fd 100;
+        end;
+      `
+
+      let expectedProgram = new Program([
+        new Branch(binOp('==',number(4),number(5)),[new Forward(number(50))],[new Forward(number(100))])
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("Parses a branch with a compound expression",function() {
+      it("Parses an if-else correctly",function() {
+        let testSource = String.raw`
+          let iters = 5;
+          if iters =/= 0 then
+            repeat iters
+              fd 50;
+              rt 90;
+            end;
+          else
+            fd 100;
+          end;
+        `
+  
+        let expectedProgram = new Program([
+          new VarDecl('iters',number(5)),
+          new Branch(binOp('=/=',new VarEvaluation('iters'),number(0)),
+                      [new Loop(new VarEvaluation('iters'),
+                                [new Forward(number(50)), new Right(90)])],
+                      [new Forward(number(100))])
+        ])
+  
+        parseAndCompare(testSource,expectedProgram)
+      })
     })
   });
 });
