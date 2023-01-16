@@ -2,7 +2,7 @@
 const assert = require('assert')
 const { SVG } = require('@svgdotjs/svg.js')
 const {assertNonNegativeNum,assertNotNull} = require("./util")
-const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp, VarDecl,VarEvaluation,VarAssign} = require("./IR")
+const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp, VarDecl,VarEvaluation,VarAssign,Branch} = require("./IR")
 
 var COMMAND_MAP = null;
 
@@ -18,6 +18,7 @@ function commandMap(processor)
         commands[PenActive.action] = (st,vms) => { return processor.setPenActive(st.isActive, vms); }
         commands[VarDecl.action] = (st,vms) => processor.declareVar(st,vms)
         commands[VarAssign.action] = (st,vms) => processor.assignVar(st,vms)
+        commands[Branch.action] = (st,vms) => processor.branch(st,vms)
         COMMAND_MAP = commands;
     }
     return COMMAND_MAP
@@ -67,6 +68,12 @@ class ExprEval
             case '*' : return arg1 * arg2;
             case '/' : return arg1 / arg2;
             case '^' : return Math.pow(arg1,arg2);
+            case '<' : return arg1 < arg2;
+            case '>' : return arg1 > arg2;
+            case '<=': return arg1 <= arg2;
+            case '>=': return arg1 >= arg2;
+            case '==': return arg1 == arg2;
+            case '=/=': return arg1 != arg2;
             default : throw new Error(`Unknown binary operator ${binOpExp.operator}`)
         }
     }
@@ -117,6 +124,21 @@ class LogoVM
         }
     }
 
+    _execBlock(statements,startingState)
+    {
+        var currentState = startingState;
+        return statements.reduce((lastState,st) => this.processStatement(st,lastState), currentState)
+    }
+
+    branch(branchStmt,vmState)
+    {
+        let conditionValue = this.exprEvaluator.eval(branchStmt.condition,vmState)
+        let statementsToExecute = conditionValue ? 
+                                    branchStmt.thenBlock.statements
+                                    : branchStmt.elseBlock.statements
+        return this._execBlock(statementsToExecute,vmState)
+    }
+
     declareVar(varDecl,vmState)
     {
         let initialValue = this.exprEvaluator.eval(varDecl.initializer,vmState)
@@ -155,7 +177,7 @@ class LogoVM
         var stateForIteration = vmState
         while (iters > 0)
         {
-            stateForIteration = statements.reduce((lastState,st) => this.processStatement(st,lastState), stateForIteration)
+            stateForIteration = this._execBlock(statements,stateForIteration)
             iters--;
         }
         return stateForIteration; //this is the result of executing the last iteration

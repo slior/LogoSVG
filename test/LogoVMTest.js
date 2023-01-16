@@ -1,8 +1,8 @@
 const assert = require('assert');
 const { LogoVM } = require('../src/LogoVM')
 const { VMState } = require('../src/VMState')
-const { number } = require("./util")
-const {Forward,VarDecl,VarEvaluation,VarAssign} = require('../src/IR')
+const { number,binOp } = require("./util")
+const {Forward,VarDecl,VarEvaluation,VarAssign,Branch} = require('../src/IR')
 
 const createMockVMImpl = (drawingEl) => { return {
     line : (x1,y1,x2,y2) => {
@@ -141,6 +141,51 @@ describe("LogoVM",function() {
                 let s1 = new VMState(200,300,0)
                 let s2 = vm.assignVar(new VarAssign("newvar",number(8)),s1)
             },/Can't assign value to undeclared variable 'newvar'/,"assignment to undeclared variable")
+        })
+    })
+
+    describe("Branch",function() {
+        it("Executes a successful condition branch",function() {
+            let vm = new LogoVM({},createMockVMImpl)
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.branch(
+                        new Branch(
+                            binOp('==',number(2),number(2)),
+                            [new Forward(number(5))]
+                        )
+                        ,s1
+                    )
+            assert.strictEqual(s2.lastX,200 + 5)
+                
+        })
+
+        it("Executes the 'else' branch when condition is not met",function() {
+            let vm = new LogoVM({},createMockVMImpl)
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.declareVar(new VarDecl('x',number(5)),s1)
+            let s3 = vm.branch(
+                        new Branch(
+                            binOp('==',new VarEvaluation('x'),number(2)),
+                            [new Forward(number(5))],
+                            [new Forward(number(10))]
+                        )
+                        ,s2
+                    )
+            assert.strictEqual(s3.lastX,200 + 10)
+        })
+
+        it("Executes nothing if 'else' is empty and condition not met",function() {
+            let vm = new LogoVM({},createMockVMImpl)
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.declareVar(new VarDecl('x',number(5)),s1)
+            let s3 = vm.branch(
+                        new Branch(
+                            binOp('==',new VarEvaluation('x'),number(2)),
+                            [new Forward(number(5))]
+                        )
+                        ,s2
+                    )
+            assert.strictEqual(s3.lastX,200)
         })
     })
 })

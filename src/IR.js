@@ -1,6 +1,6 @@
 
 const assert = require("assert");
-const {assertNotNull,assertIsNum} = require("./util")
+const {assertNotNull,assertIsNum,ifUndefined} = require("./util")
 
 class Comment
 {
@@ -110,6 +110,26 @@ class Loop extends Statement
 
 Loop.action = 'loop'
 
+class Branch extends Statement
+{
+    constructor(_condExpr,_thenBlock,_elseBlock)
+    {
+        super(Branch.action)
+        assertNotNull(_condExpr)
+        this._condExpr = _condExpr
+        assertNotNull(_thenBlock)
+        assert(_thenBlock instanceof Array)
+        this._thenBlock = new Block(_thenBlock)
+        this._elseBlock = new Block(ifUndefined(_elseBlock,[]))
+    }
+
+    get condition() { return this._condExpr}
+    get thenBlock() { return this._thenBlock }
+    get elseBlock() { return this._elseBlock }
+}
+Branch.action = "BRANCH"
+
+
 class Program extends Block
 {
     constructor(_stmts)
@@ -212,5 +232,6 @@ module.exports = {
     NumberLiteral,
     VarDecl,
     VarEvaluation,
-    VarAssign
+    VarAssign,
+    Branch
 }

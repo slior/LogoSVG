@@ -75,4 +75,28 @@ describe("Expr Evaluator",function() {
             ee.eval(binOp('^',number(10),number(3))),
             1000)
     })
+
+    it("should evaluate comparison operators",function() {
+        let ee = new ExprEval()
+
+        assert.strictEqual(ee.eval(binOp('<',number(10),number(12))), true)
+        assert.strictEqual(ee.eval(binOp('<',number(10),number(2))), false)
+
+        assert.strictEqual(ee.eval(binOp('>',number(10),number(12))), false)
+        assert.strictEqual(ee.eval(binOp('>',number(10),number(2))), true)
+
+        assert.strictEqual(ee.eval(binOp('<=',number(10),number(12))), true)
+        assert.strictEqual(ee.eval(binOp('<=',number(10),number(2))), false)
+        assert.strictEqual(ee.eval(binOp('<=',number(10),number(10))), true)
+
+        assert.strictEqual(ee.eval(binOp('>=',number(10),number(12))), false)
+        assert.strictEqual(ee.eval(binOp('>=',number(10),number(2))), true)
+        assert.strictEqual(ee.eval(binOp('>=',number(2),number(2))), true)
+
+        assert.strictEqual(ee.eval(binOp('==',binOp('+',number(1),number(1)),number(2))), true)
+        assert.strictEqual(ee.eval(binOp('==',binOp('-',number(1),number(1)),number(2))), false)
+
+        assert.strictEqual(ee.eval(binOp('=/=',binOp('+',number(1),number(1)),number(2))), false)
+        assert.strictEqual(ee.eval(binOp('=/=',binOp('+',number(1),number(1)),binOp('-',number(10),number(3)))), true)
+    })
 })
