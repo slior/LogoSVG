@@ -13,18 +13,33 @@ const g = String.raw`
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
         Statement = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl | VarAssign
-        
-        Forward = "fd" Expr
-        Back = "bk" Expr
-        Right = "rt" Expr
-        Left = "lt" Expr
-        Pen_color = "pc" color_name
-        Pen_up = "pu"
-        Pen_down = "pd"
+
+        fd = "fd"
+        bk = "bk"
+        rt = "rt"
+        lt = "lt"
+        pc = "pc"
+        pu = "pu"
+        pd = "pd"
+        repeat = "repeat"
+        loop_end = "end"
+        let = "let"
+
+        reserved_word = fd | bk | rt | lt | pc | pu | pd | repeat | loop_end | let
+
+        Forward = fd Expr
+        Back = bk Expr
+        Right = rt Expr
+        Left = lt Expr
+        Pen_color = pc color_name
+        Pen_up = pu
+        Pen_down = pd
+
+
         color_name = alnum+ //should be any color allowed in the SVG styling
         int = digit+
 
-        Loop = "repeat" Expr ProgramElements "end"
+        Loop = repeat Expr ProgramElements loop_end
         comment = "//" (~"\n" any)*
 
         ///Arithmetic Expressions
@@ -54,10 +69,11 @@ const g = String.raw`
         
         identStart = "_" | letter
         identChar = "_" | alnum
+        full_ident = identStart identChar*
 
-        ident = identStart identChar*
+        ident = ~reserved_word full_ident
 
-        VarDecl = "let" ident "=" Expr
+        VarDecl = let ident "=" Expr
 
         VarAssign = ident "=" Expr
     }
@@ -216,7 +232,7 @@ function createParser()
             return [new VarAssign(varName,rhs)]
         }, 
 
-        ident(firstChar,restOfChars) {
+        full_ident(firstChar,restOfChars) {
             let identifier = firstChar.sourceString + restOfChars.sourceString
             return [identifier]
         }

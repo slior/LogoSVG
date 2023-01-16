@@ -333,5 +333,26 @@ describe('Parser', function () {
 
       parseAndCompare(testProgram,expectedProgram)
     })
+
+    it("Rejects identifiers that are reserved words",function() {
+      assert.throws(() => {
+        let problemSource = String.raw`
+          repeat fd
+            rt 90;
+            bk 50;
+          end;
+        `
+        createParser()(problemSource)
+      },/not a reserved_word/,"trying to parse 'fd' as an identifier")
+
+      assert.throws(() => {
+        let problemSource = String.raw`
+          let repeat = 5;
+        `
+        createParser()(problemSource)
+      },/not a reserved_word/,"trying to parse 'repeat' as a variable name")
+
+
+    })
   });
 });
