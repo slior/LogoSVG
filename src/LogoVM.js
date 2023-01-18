@@ -4,25 +4,7 @@ const { SVG } = require('@svgdotjs/svg.js')
 const {assertNonNegativeNum,assertNotNull} = require("./util")
 const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp, VarDecl,VarEvaluation,VarAssign,Branch} = require("./IR")
 
-var COMMAND_MAP = null;
 
-function commandMap(processor)
-{
-    if (!COMMAND_MAP)
-    {
-        let commands = {}
-        commands[Forward.action] = (st,vms) => { return processor.forward(st.howMuch,vms); }
-        commands[Right.action] = (st,vms) => { return processor.right(st.howMuch,vms); }
-        commands[Loop.action] = (st,vms) => { return processor.loop(st.iterCount,st.statements,vms); }
-        commands[SetPenColor.action] = (st,vms) => { return processor.setPenColor(st.penColor, vms); }
-        commands[PenActive.action] = (st,vms) => { return processor.setPenActive(st.isActive, vms); }
-        commands[VarDecl.action] = (st,vms) => processor.declareVar(st,vms)
-        commands[VarAssign.action] = (st,vms) => processor.assignVar(st,vms)
-        commands[Branch.action] = (st,vms) => processor.branch(st,vms)
-        COMMAND_MAP = commands;
-    }
-    return COMMAND_MAP
-}
 
 const createSVGImpl = (drawingElement) => SVG().addTo(drawingElement).addClass("drawingSVG")
 
@@ -85,6 +67,31 @@ class ExprEval
     }
 }
 
+var STATEMENT_MAP = null;
+
+function commandMap(processor)
+{
+    if (!STATEMENT_MAP)
+    {
+        let statements = {}
+        statements[Forward.action] = (st,vms) => { return processor.forward(st.howMuch,vms); }
+        statements[Right.action] = (st,vms) => { return processor.right(st.howMuch,vms); }
+        statements[Loop.action] = (st,vms) => { return processor.loop(st.iterCount,st.statements,vms); }
+        statements[SetPenColor.action] = (st,vms) => { return processor.setPenColor(st.penColor, vms); }
+        statements[PenActive.action] = (st,vms) => { return processor.setPenActive(st.isActive, vms); }
+        statements[VarDecl.action] = (st,vms) => processor.declareVar(st,vms)
+        statements[VarAssign.action] = (st,vms) => processor.assignVar(st,vms)
+        statements[Branch.action] = (st,vms) => processor.branch(st,vms)
+        STATEMENT_MAP = statements;
+    }
+    return STATEMENT_MAP
+}
+
+/**
+ * An implementation of a VM.
+ * Most methods just execute specific VM commands, and return resulting state.
+ * Does not keep state on its own, only pointers to objects that maintain state (e.g. the drawing object).
+ */
 class LogoVM
 {
     /**
@@ -103,11 +110,20 @@ class LogoVM
         return this.draw
     }
 
+    /**
+     * Clear the underlying drawing from the drawing object
+     */
     clearDrawing()
     {
         this.drawingObj.clear();
     }
 
+    /**
+     * Process the given statement, on the given state
+     * @param {Statement} st The statement to process
+     * @param {VMState} vmState The vm state to process the statement with
+     * @returns The resulting vm state
+     */
     processStatement(st, vmState)
     {
         let commands = commandMap(this);
@@ -124,12 +140,11 @@ class LogoVM
         }
     }
 
-    _execBlock(statements,startingState)
-    {
-        var currentState = startingState;
-        return statements.reduce((lastState,st) => this.processStatement(st,lastState), currentState)
-    }
-
+    /**
+     * Process the branch on the given state, and return the resulting state
+     * @param {Branch} branchStmt The Branch statement
+     * @param {VMState} vmState The VM state to execute with
+     */
     branch(branchStmt,vmState)
     {
         let conditionValue = this.exprEvaluator.eval(branchStmt.condition,vmState)
@@ -192,6 +207,13 @@ class LogoVM
     {
         return vmState.withPenActive(isActive)
     }
+    
+    _execBlock(statements,startingState)
+    {
+        var currentState = startingState;
+        return statements.reduce((lastState,st) => this.processStatement(st,lastState), currentState)
+    }
+
 }
 
 
