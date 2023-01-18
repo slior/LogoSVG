@@ -15,11 +15,10 @@ const g = String.raw`
         ProgramElement = SingleStatement | comment
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
-        Statement = Forward | Right | Left | Loop 
-                    | Pen_color | Pen_up | Pen_down
-                    | Back | VarDecl | VarAssign 
-                    | Branch | WhileLoop
-
+        reserved_word = fd | bk | rt | lt | pc | pu
+                        | pd | repeat | block_end
+                        | let | if | then | else
+                        | while
         fd = "fd"
         bk = "bk"
         rt = "rt"
@@ -35,11 +34,11 @@ const g = String.raw`
         else = "else"
         while = "while"
 
-        reserved_word = fd | bk | rt | lt | pc | pu
-                        | pd | repeat | block_end
-                        | let | if | then | else
-                        | while
-
+        ///---------- Statements
+        Statement = Forward | Right | Left | Loop 
+                    | Pen_color | Pen_up | Pen_down
+                    | Back | VarDecl | VarAssign 
+                    | Branch | WhileLoop
         Forward = fd Expr
         Back = bk Expr
         Right = rt Expr
@@ -47,25 +46,26 @@ const g = String.raw`
         Pen_color = pc color_name
         Pen_up = pu
         Pen_down = pd
-
-        color_name = alnum+ //should be any color allowed in the SVG styling
-        int = digit+
-
         Loop = repeat Expr ProgramElements block_end
         WhileLoop = while ComparisonExpr ProgramElements block_end
+        VarDecl = let ident "=" Expr
+        VarAssign = ident "=" Expr
+        Branch = if ComparisonExpr then ProgramElements block_end --then
+             |   if ComparisonExpr then ProgramElements else ProgramElements block_end --else
 
+        
+
+
+        ///------------- Comparsion Operators
         ComparisonOp = "<" | ">" | "<=" | ">="
                        | "==" | "=/="
         ComparisonExpr = Expr ComparisonOp Expr
-        Branch = if ComparisonExpr then ProgramElements block_end --then
-        | if ComparisonExpr then ProgramElements else ProgramElements block_end --else
-
-        comment = "//" (~"\n" any)*
-
-        ///Arithmetic Expressions
+        
+        ///------------- Arithmetic Expressions
         Expr = AddOrSubExpr //Note: this is the lowest precedence, so it derives other higher precedence operations
         
         //A fraction or integer
+        int = digit+
         positiveFractionLiteral = int? "." int
         positiveNumberLiteral = positiveFractionLiteral | int
 
@@ -87,15 +87,17 @@ const g = String.raw`
         | ident --var
         | positiveNumberLiteral
         
+
+        ///----------- Other complementary definitions
         identStart = "_" | letter
         identChar = "_" | alnum
         full_ident = identStart identChar*
 
         ident = ~reserved_word full_ident
+        color_name = alnum+ //should be any color allowed in the SVG styling
+        
+        comment = "//" (~"\n" any)*
 
-        VarDecl = let ident "=" Expr
-
-        VarAssign = ident "=" Expr
     }
 `
 
