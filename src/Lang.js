@@ -2,7 +2,10 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarEvaluation,VarDecl,VarAssign,Branch,WhileLoop} = require("./IR")
+const {Forward,Right, Program, Loop, SetPenColor,
+       PenActive, Comment, BinaryOp, 
+       NumberLiteral,VarEvaluation,VarDecl,
+       VarAssign,Branch,WhileLoop} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
@@ -12,7 +15,10 @@ const g = String.raw`
         ProgramElement = SingleStatement | comment
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
-        Statement = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl | VarAssign | Branch | WhileLoop
+        Statement = Forward | Right | Left | Loop 
+                    | Pen_color | Pen_up | Pen_down
+                    | Back | VarDecl | VarAssign 
+                    | Branch | WhileLoop
 
         fd = "fd"
         bk = "bk"
@@ -29,7 +35,10 @@ const g = String.raw`
         else = "else"
         while = "while"
 
-        reserved_word = fd | bk | rt | lt | pc | pu | pd | repeat | block_end | let | if | then | else | while
+        reserved_word = fd | bk | rt | lt | pc | pu
+                        | pd | repeat | block_end
+                        | let | if | then | else
+                        | while
 
         Forward = fd Expr
         Back = bk Expr
@@ -45,7 +54,8 @@ const g = String.raw`
         Loop = repeat Expr ProgramElements block_end
         WhileLoop = while ComparisonExpr ProgramElements block_end
 
-        ComparisonOp = "<" | ">" | "<=" | ">=" | "==" | "=/="
+        ComparisonOp = "<" | ">" | "<=" | ">="
+                       | "==" | "=/="
         ComparisonExpr = Expr ComparisonOp Expr
         Branch = if ComparisonExpr then ProgramElements block_end --then
         | if ComparisonExpr then ProgramElements else ProgramElements block_end --else

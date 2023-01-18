@@ -1,6 +1,9 @@
 const assert = require('assert');
 const { createParser } = require("../src/Lang.js")
-const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarDecl,VarEvaluation,VarAssign,Branch,WhileLoop} = require("../src/IR");
+const {Forward,Right, Program, Loop,SetPenColor,
+       PenActive, Comment, BinaryOp,
+       NumberLiteral,VarDecl,VarEvaluation,
+       VarAssign,Branch,WhileLoop} = require("../src/IR");
 const {number,binOp} = require("./util")
 
 function parseAndCompare(testSource,expectedIR) 
@@ -379,7 +382,9 @@ describe('Parser', function () {
       `
 
       let expectedProgram = new Program([
-        new Branch(binOp('==',number(4),number(5)),[new Forward(number(50))],[new Forward(number(100))])
+        new Branch(binOp('==',number(4),number(5)),
+                  [new Forward(number(50))],
+                  [new Forward(number(100))])
       ])
 
       parseAndCompare(testSource,expectedProgram)

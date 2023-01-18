@@ -2,11 +2,15 @@
 const assert = require('assert')
 const { SVG } = require('@svgdotjs/svg.js')
 const {assertNonNegativeNum,assertNotNull} = require("./util")
-const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp, VarDecl,VarEvaluation,VarAssign,Branch,WhileLoop} = require("./IR")
+const { Forward,Right, Loop, SetPenColor, 
+        PenActive, NumberLiteral, BinaryOp,
+        VarDecl,VarEvaluation,VarAssign,
+        Branch,WhileLoop} = require("./IR")
 
 
 
-const createSVGImpl = (drawingElement) => SVG().addTo(drawingElement).addClass("drawingSVG")
+const createSVGImpl = (drawingElement) => 
+    SVG().addTo(drawingElement).addClass("drawingSVG")
 
 class ExprEval
 {
@@ -103,7 +107,8 @@ class LogoVM
     constructor(drawingElement, vmUnderlyingImpl = undefined)
     {
         assertNotNull(drawingElement);
-        this.draw = vmUnderlyingImpl === undefined ? createSVGImpl(drawingElement) : vmUnderlyingImpl(drawingElement)
+        this.draw = vmUnderlyingImpl === undefined ?
+             createSVGImpl(drawingElement) : vmUnderlyingImpl(drawingElement)
         this.exprEvaluator = new ExprEval()
     }
 
@@ -191,7 +196,8 @@ class LogoVM
         let x2 = vmState.lastX + howMuch * Math.cos(vmState.radianAngle())
         let y2 = vmState.lastY + howMuch * Math.sin(vmState.radianAngle())
         if (vmState.penActive)
-            this.drawingObj.line(vmState.lastX, vmState.lastY, x2, y2).stroke({ color: vmState.penColor,width: 1 }) 
+            this.drawingObj.line(vmState.lastX, vmState.lastY, x2, y2)
+                           .stroke({ color: vmState.penColor,width: 1 }) 
         return vmState.withLastPoint(x2,y2);
     }
 

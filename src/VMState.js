@@ -1,5 +1,6 @@
 
-const { assertInRange,assertIsNum, ifUndefined, ifNotUndefinedDo } = require('./util.js')
+const { assertInRange,assertIsNum, ifUndefined,
+        ifNotUndefinedDo } = require('./util.js')
 
 const BOUNDS = {
     X_LOW : 0,
@@ -16,7 +17,10 @@ const DEFAULT_PEN_COLOR = "black";
 
 class VMState
 {
-    constructor(x,y,_angle,_lastX = undefined, _lastY = undefined, _pc = undefined, _pa = undefined,_varValues = undefined)
+    constructor(x,y,_angle,
+                _lastX = undefined, _lastY = undefined,
+                _pc = undefined, _pa = undefined,
+                _varValues = undefined)
     {
         assertInRange(x,BOUNDS.X_LOW,BOUNDS.X_HIGH);
         assertInRange(y,BOUNDS.Y_LOW,BOUNDS.Y_HIGH);
