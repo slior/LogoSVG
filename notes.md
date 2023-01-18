@@ -155,3 +155,30 @@ end;
     fd 100;
   end;
 ```
+
+7. A while loop
+
+A simple square
+```
+let iters = 4;
+while iters > 0
+  fd 50;
+  rt 90;
+  iters = iters -1;
+end;
+```
+
+Drawing several shapes using loops
+```
+let shapeCount = 20;
+let minSides = 3;
+
+let sides = minSides;
+while sides < (shapeCount + minSides)
+  repeat sides
+    fd 50;
+    rt 360/sides;
+  end;
+  sides = sides + 1;
+end;
+```

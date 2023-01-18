@@ -2,7 +2,7 @@ const assert = require('assert');
 const { LogoVM } = require('../src/LogoVM')
 const { VMState } = require('../src/VMState')
 const { number,binOp } = require("./util")
-const {Forward,VarDecl,VarEvaluation,VarAssign,Branch} = require('../src/IR')
+const {Forward,VarDecl,VarEvaluation,VarAssign,Branch,WhileLoop} = require('../src/IR')
 
 const createMockVMImpl = (drawingEl) => { return {
     line : (x1,y1,x2,y2) => {
@@ -103,6 +103,23 @@ describe("LogoVM",function() {
                 let s2 = vm.loop(number(itercount),statements,s1)
             }, /-3 is negative/, "negative value for iteration count")
     
+        })
+
+        it("Executes a while loop correctly",function() {
+            let vm = new LogoVM({},createMockVMImpl)
+            let s1 = new VMState(150,50,0)
+            let statements = [
+                new Forward(number(25)),
+                new VarAssign("iters",binOp("-",new VarEvaluation("iters"),number(1))) //iters -= 1
+            ]
+
+            let condVarDecl = new VarDecl("iters",number(3))
+            let cond = binOp(">",new VarEvaluation("iters"),number(0))
+            let whileStmt = new WhileLoop(cond,statements)
+            let s2 = vm.processStatement(condVarDecl,s1) //need to declare the variable first
+            let s3 = vm.processStatement(whileStmt,s2) //after declaring 'iters' - run the loop w/ the condition that tests 'iters' value
+
+            assert.deepStrictEqual(s3.lastX,s1.lastX + (25*3))
         })
     })
 

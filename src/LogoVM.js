@@ -2,7 +2,7 @@
 const assert = require('assert')
 const { SVG } = require('@svgdotjs/svg.js')
 const {assertNonNegativeNum,assertNotNull} = require("./util")
-const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp, VarDecl,VarEvaluation,VarAssign,Branch} = require("./IR")
+const {Forward,Right, Loop, SetPenColor, PenActive, NumberLiteral, BinaryOp, VarDecl,VarEvaluation,VarAssign,Branch,WhileLoop} = require("./IR")
 
 
 
@@ -82,6 +82,7 @@ function commandMap(processor)
         statements[VarDecl.action] = (st,vms) => processor.declareVar(st,vms)
         statements[VarAssign.action] = (st,vms) => processor.assignVar(st,vms)
         statements[Branch.action] = (st,vms) => processor.branch(st,vms)
+        statements[WhileLoop.action] = (st,vms) => processor.whileLoop(st,vms)
         STATEMENT_MAP = statements;
     }
     return STATEMENT_MAP
@@ -138,6 +139,23 @@ class LogoVM
             console.log(`command ${st.action} not recognized`);
             return vmState;
         }
+    }
+
+    /**
+     * Executes the while statement on the given state and returns the new state
+     * @param {WhileLoop} whileStmt The while statement
+     * @param {VMState} vmState The VM state to run on
+     */
+    whileLoop(whileStmt,vmState)
+    {
+        var conditionValue = this.exprEvaluator.eval(whileStmt.condition,vmState)
+        var lastState = vmState
+        while(conditionValue)
+        { //TODO: consider guarding against infinite loops
+            lastState = this._execBlock(whileStmt.statements,lastState)
+            conditionValue = this.exprEvaluator.eval(whileStmt.condition,lastState)
+        }
+        return lastState
     }
 
     /**

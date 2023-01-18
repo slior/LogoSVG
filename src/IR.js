@@ -110,6 +110,24 @@ class Loop extends Statement
 
 Loop.action = 'loop'
 
+class WhileLoop extends Statement
+{
+    constructor(_condExpr,_stmts)
+    {
+        super(WhileLoop.action)
+        assertNotNull(_condExpr)
+        assert(_condExpr instanceof Expr,"Condition for while must be an expression")
+        this._condition = _condExpr
+        assertNotNull(_stmts)
+        this.block = new Block(ifUndefined(_stmts,[]))
+        
+    }
+
+    get condition() { return this._condition }
+    get statements() { return this.block.statements }
+}
+WhileLoop.action = "WHILE"
+
 class Branch extends Statement
 {
     constructor(_condExpr,_thenBlock,_elseBlock)
@@ -233,5 +251,6 @@ module.exports = {
     VarDecl,
     VarEvaluation,
     VarAssign,
-    Branch
+    Branch,
+    WhileLoop
 }

@@ -2,7 +2,7 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarEvaluation,VarDecl,VarAssign,Branch} = require("./IR")
+const {Forward,Right, Program, Loop, SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarEvaluation,VarDecl,VarAssign,Branch,WhileLoop} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
@@ -12,7 +12,7 @@ const g = String.raw`
         ProgramElement = SingleStatement | comment
         ProgramElements = (ProgramElement )? (~";" ProgramElement)*
 
-        Statement = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl | VarAssign | Branch
+        Statement = Forward | Right | Left | Loop | Pen_color | Pen_up | Pen_down | Back | VarDecl | VarAssign | Branch | WhileLoop
 
         fd = "fd"
         bk = "bk"
@@ -27,8 +27,9 @@ const g = String.raw`
         if = "if"
         then = "then"
         else = "else"
+        while = "while"
 
-        reserved_word = fd | bk | rt | lt | pc | pu | pd | repeat | block_end | let | if | then | else
+        reserved_word = fd | bk | rt | lt | pc | pu | pd | repeat | block_end | let | if | then | else | while
 
         Forward = fd Expr
         Back = bk Expr
@@ -42,6 +43,7 @@ const g = String.raw`
         int = digit+
 
         Loop = repeat Expr ProgramElements block_end
+        WhileLoop = while ComparisonExpr ProgramElements block_end
 
         ComparisonOp = "<" | ">" | "<=" | ">=" | "==" | "=/="
         ComparisonExpr = Expr ComparisonOp Expr
@@ -181,7 +183,12 @@ function createParser()
         }
 
         , Loop(_, iters,commandList,___) {
+            //TODO: consider re-writing as WhileLoop
             return [new Loop(iters.asIR()[0],commandList.asIR())]
+        }
+
+        , WhileLoop(_,condExpr,statements,__) {
+            return [new WhileLoop(condExpr.asIR()[0],statements.asIR())]
         }
 
         , int(i) { return new NumberLiteral(parseInt(i.sourceString)) }

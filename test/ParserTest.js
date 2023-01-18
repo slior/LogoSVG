@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { createParser } = require("../src/Lang.js")
-const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarDecl,VarEvaluation,VarAssign,Branch} = require("../src/IR");
+const {Forward,Right, Program, Loop,SetPenColor, PenActive, Comment, BinaryOp, NumberLiteral,VarDecl,VarEvaluation,VarAssign,Branch,WhileLoop} = require("../src/IR");
 const {number,binOp} = require("./util")
 
 function parseAndCompare(testSource,expectedIR) 
@@ -409,6 +409,42 @@ describe('Parser', function () {
   
         parseAndCompare(testSource,expectedProgram)
       })
+    })
+
+    it("Parses a greater than operator correctly",function(){
+      let testSource = String.raw`
+        if 2 > 1 then
+          fd 10;
+        end;
+      `
+
+      let expectedProgram = new Program([
+        new Branch(binOp('>',number(2),number(1)),[new Forward(number(10))])
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("Parses a while loop correctly",function() {
+      let testSource = String.raw`
+        let iters = 4;
+        while iters > 0
+          fd 50;
+          rt 90;
+          iters = iters - 1;
+        end;
+      `
+
+      let expectedProgram = new Program([
+        new VarDecl('iters',number(4)),
+        new WhileLoop(binOp('>',new VarEvaluation('iters'),number(0)),[
+          new Forward(number(50)),
+          new Right(number(90)),
+          new VarAssign('iters',binOp('-',new VarEvaluation('iters'),number(1)))
+        ])
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
     })
   });
 });
