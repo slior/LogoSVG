@@ -77,6 +77,7 @@ const g = String.raw`
 
         MultOrDivExpr = MultOrDivExpr "*" ExponentExpr --mult
         | MultOrDivExpr "/" ExponentExpr --div
+        | MultOrDivExpr "%" ExponentExpr --mod
         | ExponentExpr
         
         ExponentExpr = ParentExpr "^" ExponentExpr --exp
@@ -227,6 +228,10 @@ function createParser()
 
         MultOrDivExpr_div(arg1,_,arg2) {
             return binOpIR('/',arg1,arg2)
+        },
+
+        MultOrDivExpr_mod(arg1,_,arg2) {
+            return binOpIR('%',arg1,arg2)
         },
 
         ExponentExpr_exp(arg1,__,arg2) {

@@ -60,6 +60,7 @@ class ExprEval
             case '>=': return arg1 >= arg2;
             case '==': return arg1 == arg2;
             case '=/=': return arg1 != arg2;
+            case '%' : return arg1 % arg2;
             default : throw new Error(`Unknown binary operator ${binOpExp.operator}`)
         }
     }

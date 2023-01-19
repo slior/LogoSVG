@@ -243,11 +243,13 @@ describe('Parser', function () {
         fd 10 * 2;
         rt 5 / .5;
         rt 10 - 2 * 5;
+        fd 10 % 2;
       `
       let expectedProgram = new Program([
         new Forward(binOp('*',number(10),number(2)))
         , new Right(binOp('/',number(5),number(0.5)))
         , new Right(binOp('-',number(10),binOp('*',number(2),number(5))))
+        , new Forward(binOp('%',number(10),number(2)))
       ])
 
       parseAndCompare(testProgram,expectedProgram)

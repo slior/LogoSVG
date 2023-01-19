@@ -56,6 +56,17 @@ describe("Expr Evaluator",function() {
             2)
     })
 
+    it("Should evaluate modulo expr",function() {
+        let ee = new ExprEval()
+        assert.strictEqual(
+            ee.eval(binOp('%',number(1),number(4)))
+            ,1)
+
+        assert.strictEqual(
+            ee.eval(binOp('/',binOp('%',number(4),number(1)),number(2))),
+            0)
+    })
+
     it("Should evaluate mixed operators",function() {
         let ee = new ExprEval()
 
