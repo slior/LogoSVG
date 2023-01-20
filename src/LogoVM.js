@@ -234,9 +234,10 @@ class LogoVM
     }
     
     _execBlock(statements,startingState)
-    {
-        var currentState = startingState;
-        return statements.reduce((lastState,st) => this.processStatement(st,lastState), currentState)
+    {  //before executing the block - push a new identifier scope, and pop it at the end of the block
+        let currentState = startingState.withPushedScope();
+        let lastState = statements.reduce((lastState,st) => this.processStatement(st,lastState), currentState)
+        return lastState.withPoppedScope();
     }
 
 }

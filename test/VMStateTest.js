@@ -119,7 +119,7 @@ describe("VMState",function() {
     })
 
     it("Defines variable",function() {
-        let vms = new VMState(10,20,90,10,20,"blue",true,{reps : 10})
+        let vms = new VMState(10,20,90,10,20,"blue",true,[{reps : 10}])
         assert.strictEqual(vms._isDefined("reps"),true)
         assert.strictEqual(vms._isDefined("notdefined"),false)
 
@@ -141,5 +141,19 @@ describe("VMState",function() {
         assert.throws(() => {
             vms.valueOf("undeclared_var")
         }, /Undefined variable undeclared_var/,"retrieving undeclared var - should fail")
+    })
+
+    it("Maintains variable definition scopes correctly",function() {
+        let vms1 = new VMState(10,20,90)
+        let vms2 = vms1.withNewVar("x",1)
+        let vms3 = vms2.withPushedScope() //if ... then ...
+        let vms4 = vms3.withNewVar("y",5) // let y = 5, inside the if
+        assert.strictEqual(vms4.valueOf("y"),5,"'y' should be reachable in inner scope")
+        assert.strictEqual(vms4.valueOf("x"),1,"'x' should be reachable in inner scope")
+        assert.strictEqual(vms2._isDefined("y"),false,"'y' should not be recognized in previous state")
+        let vms5 = vms4.withPoppedScope() //end;
+        assert.strictEqual(vms5.valueOf("x"),1,"'x' should be reachable in outer scope")
+        assert.strictEqual(vms5._isDefined("y"),false,"'y' should not be recognized in state with popped scope")
+
     })
 })
