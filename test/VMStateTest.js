@@ -1,5 +1,5 @@
 const assert = require('assert');
-const {VMState,DEFAULT_PEN_COLOR, BOUNDS} = require('../src/VMState')
+const {VMState,DEFAULT_PEN_COLOR, BOUNDS, IdentifierScope} = require('../src/VMState')
 
 describe("VMState",function() {
     it("Sets initialization values correctly",function() {
@@ -119,14 +119,14 @@ describe("VMState",function() {
     })
 
     it("Defines variable",function() {
-        let vms = new VMState(10,20,90,10,20,"blue",true,[{reps : 10}])
-        assert.strictEqual(vms._isDefined("reps"),true)
-        assert.strictEqual(vms._isDefined("notdefined"),false)
+        let vms = new VMState(10,20,90,10,20,"blue",true,[new IdentifierScope ({reps : 10})])
+        assert.strictEqual(vms.activeScope.definesVariable("reps"),true)
+        assert.strictEqual(vms.activeScope.definesVariable("notdefined"),false)
 
         let vms2 = vms.withNewVar("newvar",5)
-        assert.strictEqual(vms2._isDefined("reps"),true)
-        assert.strictEqual(vms._isDefined("newvar"),false)
-        assert.strictEqual(vms2._isDefined("newvar"),true)
+        assert.strictEqual(vms2.activeScope.definesVariable("reps"),true)
+        assert.strictEqual(vms.activeScope.definesVariable("newvar"),false)
+        assert.strictEqual(vms2.activeScope.definesVariable("newvar"),true)
         assert.notStrictEqual(vms,vms2)
     })
 
@@ -150,10 +150,10 @@ describe("VMState",function() {
         let vms4 = vms3.withNewVar("y",5) // let y = 5, inside the if
         assert.strictEqual(vms4.valueOf("y"),5,"'y' should be reachable in inner scope")
         assert.strictEqual(vms4.valueOf("x"),1,"'x' should be reachable in inner scope")
-        assert.strictEqual(vms2._isDefined("y"),false,"'y' should not be recognized in previous state")
+        assert.strictEqual(vms2._isVarDefined("newvar"),false,"'y' should not be recognized in previous state")
         let vms5 = vms4.withPoppedScope() //end;
         assert.strictEqual(vms5.valueOf("x"),1,"'x' should be reachable in outer scope")
-        assert.strictEqual(vms5._isDefined("y"),false,"'y' should not be recognized in state with popped scope")
+        assert.strictEqual(vms5._isVarDefined("y"),false,"'y' should not be recognized in state with popped scope")
 
     })
 })

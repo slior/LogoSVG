@@ -2,7 +2,9 @@ const assert = require('assert');
 const { LogoVM } = require('../src/LogoVM')
 const { VMState } = require('../src/VMState')
 const { number,binOp } = require("./util")
-const {Forward,VarDecl,VarEvaluation,VarAssign,Branch,WhileLoop} = require('../src/IR')
+const { Forward,VarDecl,VarEvaluation,VarAssign,Branch,
+        WhileLoop,ProcedureDef,ProcedureCall,
+        Loop,Right} = require('../src/IR')
 
 const createMockVMImpl = (drawingEl) => { return {
     line : (x1,y1,x2,y2) => {
@@ -203,6 +205,53 @@ describe("LogoVM",function() {
                         ,s2
                     )
             assert.strictEqual(s3.lastX,200)
+        })
+    })
+
+    describe("Procedures",function() {
+        it("Executes a procedure definition",function() {
+            let vm = new LogoVM({},createMockVMImpl)
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.defineProcedure(new ProcedureDef("shape",["sides","size"],
+            [
+              new Loop(new VarEvaluation("sides"),[
+                new Forward(new VarEvaluation("size")),
+                new Right(binOp("/",number(360),new VarEvaluation("sides")))
+              ])
+            ]),s1)
+
+            assert.strictEqual(s1.getProcedure("shape"),null);
+            assert.notStrictEqual(s2.getProcedure("shape"),null);
+
+            let procDef = s2.getProcedure("shape")
+            assert.deepEqual(procDef,new ProcedureDef("shape",["sides","size"],
+            [
+              new Loop(new VarEvaluation("sides"),[
+                new Forward(new VarEvaluation("size")),
+                new Right(binOp("/",number(360),new VarEvaluation("sides")))
+              ])
+            ]))
+        })
+
+        it("Executes a procedure call",function() {
+            let vm = new LogoVM({},createMockVMImpl)
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.defineProcedure(new ProcedureDef("shape",["sides","size"],
+            [
+              new Loop(new VarEvaluation("sides"),[
+                new Forward(new VarEvaluation("size")),
+                new Forward(number(20))
+              ])
+            ]),s1)
+
+            let s3 = vm.callProcedure(new ProcedureCall("shape",[
+                new VarAssign("sides",number(4)),
+                new VarAssign("size",number(50))
+            ]),s2)
+
+            assert.strictEqual(s3.lastX,200 + 4 * (50+20))
+            assert.strictEqual(s3.activeScope.definesVariable("sides"),false)
+
         })
     })
 })

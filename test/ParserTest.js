@@ -3,7 +3,8 @@ const { createParser } = require("../src/Lang.js")
 const {Forward,Right, Program, Loop,SetPenColor,
        PenActive, Comment, BinaryOp,
        NumberLiteral,VarDecl,VarEvaluation,
-       VarAssign,Branch,WhileLoop} = require("../src/IR");
+       VarAssign,Branch,WhileLoop,
+       ProcedureDef,ProcedureCall} = require("../src/IR");
 const {number,binOp} = require("./util")
 
 function parseAndCompare(testSource,expectedIR) 
@@ -449,6 +450,133 @@ describe('Parser', function () {
           new Right(number(90)),
           new VarAssign('iters',binOp('-',new VarEvaluation('iters'),number(1)))
         ])
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("Parses a procedure definition with 2 params",function() {
+      let testSource = String.raw`
+        procedure shape(sides,size):
+          repeat sides
+            fd size;
+            rt 360/sides;
+          end;
+        end;
+      `
+
+      let expectedProgram = new Program([
+        new ProcedureDef("shape",["sides","size"],
+            [
+              new Loop(new VarEvaluation("sides"),[
+                new Forward(new VarEvaluation("size")),
+                new Right(binOp("/",number(360),new VarEvaluation("sides")))
+              ])
+            ])
+      ])
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("Parses a procedure definition with 0 params",function() {
+      let testSource = String.raw`
+        procedure square():
+          repeat 4
+            fd 50;
+            rt 90;
+          end;
+        end;
+      `
+
+      let expectedProgram = new Program([
+        new ProcedureDef("square",[],
+            [
+              new Loop(number(4),[
+                new Forward(number(50)),
+                new Right(number(90))
+              ])
+            ])
+      ])
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("Parses a procedure definition with 1 param",function() {
+      let testSource = String.raw`
+        procedure square(size):
+          repeat 4
+            fd size;
+            rt 90;
+          end;
+        end;
+      `
+
+      let expectedProgram = new Program([
+        new ProcedureDef("square",["size"],
+            [
+              new Loop(number(4),[
+                new Forward(new VarEvaluation("size")),
+                new Right(number(90))
+              ])
+            ])
+      ])
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("Parses a procedure definition with 3 params",function() {
+      let testSource = String.raw`
+        procedure shape(sides,size,interval):
+          repeat sides
+            fd size;
+            rt 360/sides;
+            pu;
+            fd interval;
+            pd;
+          end;
+        end;
+      `
+
+      let expectedProgram = new Program([
+        new ProcedureDef("shape",["sides","size","interval"],
+            [
+              new Loop(new VarEvaluation("sides"),[
+                new Forward(new VarEvaluation("size")),
+                new Right(binOp("/",number(360),new VarEvaluation("sides"))),
+                new PenActive(false),
+                new Forward(new VarEvaluation("interval")),
+                new PenActive(true)
+              ])
+            ])
+      ])
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("parses a simple procedure call",function() {
+      let testSource = String.raw`
+        call add2 with x = 5;
+      `
+
+      let expectedProgram = new Program([
+        new ProcedureCall("add2",[
+          new VarAssign("x",number(5))
+        ])
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("parses a procedure call with 2 parameters and other statements around it",function() {
+      let testSource = String.raw`
+        let x = 5;
+        call shape with sides = x * 2, size=10;
+        fd 100;
+      `
+
+      let expectedProgram = new Program([
+        new VarDecl("x",number(5)),
+        new ProcedureCall("shape",[
+          new VarAssign("sides",binOp("*",new VarEvaluation("x"),number(2))),
+          new VarAssign("size",number(10))
+        ]),
+        new Forward(number(100))
       ])
 
       parseAndCompare(testSource,expectedProgram)

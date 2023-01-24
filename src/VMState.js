@@ -14,6 +14,42 @@ const BOUNDS = {
 const DEFAULT_PEN_COLOR = "black";
 
 
+class IdentifierScope
+{
+    constructor(_vars = {}, _procs = {})
+    {
+        this._variables = _vars
+        this._procedures = _procs
+    }
+
+    get variables() { return Object.assign({},this._variables) }
+    get procedures() { return Object.assign({},this._procedures) }
+
+    definesVariable(varName)
+    {
+        return this._variables[varName] !== undefined;
+    }
+
+    withVariableSet(varName,value)
+    {
+        let newVars = this.variables
+        newVars[varName] = value
+        return new IdentifierScope(newVars,this.procedures)
+    }
+
+    withNewProcedure(procDef)
+    {
+        let newProcs = this.procedures
+        newProcs[procDef.name] = procDef
+        return new IdentifierScope(this.variables,newProcs)
+    }
+
+    definesProcedureWithName(name)
+    {
+        return this._procedures[name] !== undefined
+    }
+}
+
 /**
  * Full VM state that can be transferred between calls to VM.
  * Is generally immutable. Mutations create a new instance.
@@ -45,7 +81,7 @@ class VMState
         this._penColor = ifUndefined(_pc,DEFAULT_PEN_COLOR)
         this._penActive = ifUndefined(_pa,true);
         this._scopes = (_scopes.length == 0) || (_scopes === undefined) ?
-                             [{}]
+                            [new IdentifierScope()]
                             : Array.from(_scopes)
     }
 
@@ -96,7 +132,7 @@ class VMState
 
     withNewVar(varName,initialValue) 
     {
-        if (!this._isDefined(varName))
+        if (!this._isVarDefined(varName))
         {
             return this._newStateWithNewVar(varName,initialValue)
         }
@@ -110,12 +146,12 @@ class VMState
      */
     withVarValue(varName,value)
     {
-        if (this._isDefined(varName))
+        if (this._isVarDefined(varName))
             return this._newStateWithModifiedVar(varName,value)
         else throw new Error(`Can't assign value to undeclared variable '${varName}'`)
     }
 
-    get scopes() { return this._scopes}
+    get scopes() { return this._scopes} //TODO: change this to return a copy - will simplify other methods in this class
     get activeScope() { 
         if (this._scopes.length < 1) 
             throw new Error("Illegal state - no scopes")
@@ -125,7 +161,7 @@ class VMState
 
     valueOf(varName)
     {
-        if (this._isDefined(varName))
+        if (this._isVarDefined(varName))
             return this._allReachableVariables()[varName]
         else throw new Error(`Undefined variable ${varName}`)
     }
@@ -136,42 +172,38 @@ class VMState
      */
     _allReachableVariables()
     {
-        return this._scopes.reduce((acc,currScope) => Object.assign(acc,currScope),{})
+        return this._scopes.reduce((acc,currScope) => Object.assign(acc,currScope.variables),{})
     }
     /**
      * 
      * @param {String} varName The variable name to look for
      */
-    _isDefined(varName) 
+    _isVarDefined(varName) 
     { 
-        return this._allReachableVariables()[varName] != undefined
+        return this.scopes.some(scope => scope.definesVariable(varName))
     }
 
     _newStateWithModifiedVar(varName,value) {
         let scopeSearchResult = this._findScopeForVariable(varName)
-        let newVarValues = Object.assign({},scopeSearchResult.scope)
-        newVarValues[varName] = value
         let newScopes = Array.from(this._scopes)
-        newScopes[scopeSearchResult.ind] = newVarValues
+        newScopes[scopeSearchResult.ind] = scopeSearchResult.scope.withVariableSet(varName,value)
         return VMState.newFromExisting(this,{scopes : newScopes})
     }
 
     _newStateWithNewVar(varName,value) {
-        if (this._isDefined(varName))
+        if (this._isVarDefined(varName))
             throw new Error(`Variable ${varName} already defined`)
         else
         {
-            let newVarValues = Object.assign({},this.activeScope)
-            newVarValues[varName] = value
             let newScopes = this._scopes.slice(0,this._scopes.length-1)
-            newScopes.push(newVarValues)
+            newScopes.push(this.activeScope.withVariableSet(varName,value)) //slice returns a copy, so activeScope is still ok
             return VMState.newFromExisting(this,{scopes : newScopes})
         }
     }
 
     _findScopeForVariable(varName)
     {
-        let scopeIndex = this._scopes.findIndex(scope => scope[varName] !== undefined)
+        let scopeIndex = this._scopes.findIndex(scope => scope.definesVariable(varName))
         if (scopeIndex > -1)
         {
             return { scope : this._scopes[scopeIndex], ind : scopeIndex }
@@ -183,7 +215,7 @@ class VMState
     withPushedScope()
     {
         let newScopes = Array.from(this.scopes)
-        newScopes.push({})
+        newScopes.push(new IdentifierScope())
         return VMState.newFromExisting(this,{scopes : newScopes})
     }
 
@@ -192,10 +224,43 @@ class VMState
         let newScopes = this.scopes.slice(0,this.scopes.length-1)
         return VMState.newFromExisting(this,{scopes : newScopes})
     }
+
+    _isProcDefined(procDef)
+    {
+        return this._scopes.some(scope => scope.definesProcedureWithName(procDef.name))
+    }
+
+    withNewProcedure(procDef)
+    {
+        if (!this._isProcDefined(procDef))
+        {
+            let newScopes = this._scopes.slice(0,this._scopes.length-1)
+            newScopes.push(this.activeScope.withNewProcedure(procDef))
+            return VMState.newFromExisting(this,{ scopes : newScopes})
+        }
+        else
+            throw new Error(`Procedure ${JSON.stringify(procDef)} already defined` )
+    }
+
+    /**
+     * Attempts to find a procedure with the given name, reachable from the current active scope
+     * @param {String} name The name of the procedure to find
+     * @returns The procedure definition, or null if it doesn't find it
+     */
+    getProcedure(name)
+    {
+        let result = Array.from(this.scopes).reverse()
+                                .filter(scope => scope.definesProcedureWithName(name))
+                                .map(scope => scope.procedures[name])
+        return result.length < 1 ?
+                null
+                : result[0]
+    }
 }
 
 module.exports = {
     VMState,
     DEFAULT_PEN_COLOR //for testing, otherwise don't see a reason to expose this (maybe move it?)
     , BOUNDS //also here
+    , IdentifierScope // and here
 }

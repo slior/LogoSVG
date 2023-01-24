@@ -43,11 +43,26 @@ const ifUndefined = (v,def) => v === undefined ? def : v
  */
 const ifNotUndefinedDo = (v,block) => { if (v !== undefined) block() }
 
+/**
+ * Tests if the given string is non-empty. If it is - throws an error
+ * If it's not empty - returns the string
+ * @param {String} s The string to test
+ * @param {String} msg An error message to show, optional.
+ */
+function assertNonEmpty(s,msg = undefined)
+{
+    assertNotNull(s)
+    if (s === '')
+        throw new Error(msg ? msg : `String is empty`)
+    return s;
+}
+
 module.exports = {
     assertInRange,
     assertIsNum,
     assertNotNull,
     assertNonNegativeNum,
     ifUndefined,
-    ifNotUndefinedDo
+    ifNotUndefinedDo,
+    assertNonEmpty
 }

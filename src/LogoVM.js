@@ -5,7 +5,8 @@ const {assertNonNegativeNum,assertNotNull} = require("./util")
 const { Forward,Right, Loop, SetPenColor, 
         PenActive, NumberLiteral, BinaryOp,
         VarDecl,VarEvaluation,VarAssign,
-        Branch,WhileLoop} = require("./IR")
+        Branch,WhileLoop, ProcedureDef,
+        ProcedureCall} = require("./IR")
 
 
 
@@ -88,6 +89,8 @@ function commandMap(processor)
         statements[VarAssign.action] = (st,vms) => processor.assignVar(st,vms)
         statements[Branch.action] = (st,vms) => processor.branch(st,vms)
         statements[WhileLoop.action] = (st,vms) => processor.whileLoop(st,vms)
+        statements[ProcedureDef.action] = (st,vms) => processor.defineProcedure(st,vms)
+        statements[ProcedureCall.action] = (st,vms) => processor.callProcedure(st,vms)
         STATEMENT_MAP = statements;
     }
     return STATEMENT_MAP
@@ -145,6 +148,31 @@ class LogoVM
             console.log(`command ${st.action} not recognized`);
             return vmState;
         }
+    }
+
+    defineProcedure(procDef,vmState)
+    {
+        return vmState.withNewProcedure(procDef)
+    }
+
+    /**
+     * Executes the procedure designated by the given statement def, with the given arguments.
+     * @param {ProcedureCall} callStmt The procedure call statement
+     * @param {VMState} vmState The VM state to execute on
+     * @returns The new vm state
+     */
+    callProcedure(callStmt,vmState)
+    {
+        /*
+            1. retrieve the procedure definition + the statements.
+            2. map the arguments to variable declarations
+            2. prepend to the var declarations to the statements
+            3. execute the resulting block
+        */
+        let procDef = vmState.getProcedure(callStmt.name)
+        let varDecls = callStmt.arguments.map(arg => new VarDecl(arg.varName,arg.rhs))
+        let block = varDecls.concat(procDef.statements)
+        return this._execBlock(block,vmState)
     }
 
     /**

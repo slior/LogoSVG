@@ -5,7 +5,8 @@ const ohm = _ohm.default || _ohm; //workaround to allow importing using common j
 const {Forward,Right, Program, Loop, SetPenColor,
        PenActive, Comment, BinaryOp, 
        NumberLiteral,VarEvaluation,VarDecl,
-       VarAssign,Branch,WhileLoop} = require("./IR")
+       VarAssign,Branch,WhileLoop,
+       ProcedureDef,ProcedureCall} = require("./IR")
 
 const g = String.raw`
     LogoSVG {
@@ -18,7 +19,8 @@ const g = String.raw`
         reserved_word = fd | bk | rt | lt | pc | pu
                         | pd | repeat | block_end
                         | let | if | then | else
-                        | while
+                        | while | procedure | call
+                        | with
         fd = "fd"
         bk = "bk"
         rt = "rt"
@@ -33,12 +35,17 @@ const g = String.raw`
         then = "then"
         else = "else"
         while = "while"
+        procedure = "procedure"
+        call = "call"
+        with = "with"
 
         ///---------- Statements
         Statement = Forward | Right | Left | Loop 
                     | Pen_color | Pen_up | Pen_down
                     | Back | VarDecl | VarAssign 
-                    | Branch | WhileLoop
+                    | Branch | WhileLoop | ProcDef
+                    | ProcCall
+
         Forward = fd Expr
         Back = bk Expr
         Right = rt Expr
@@ -52,8 +59,12 @@ const g = String.raw`
         VarAssign = ident "=" Expr
         Branch = if ComparisonExpr then ProgramElements block_end --then
              |   if ComparisonExpr then ProgramElements else ProgramElements block_end --else
-
         
+        ParamList =  (ident)? ("," ident)*
+        ProcDef = procedure ident "(" ParamList ")" ":" ProgramElements block_end
+        
+        ArgList =  (VarAssign)? ("," VarAssign)*
+        ProcCall = call ident with ArgList
 
 
         ///------------- Comparsion Operators
@@ -283,6 +294,30 @@ function createParser()
 
         Branch_else(_,compExpr,__,thenStmts,___,elseStmts,____) {
             return [new Branch(compExpr.asIR()[0],thenStmts.asIR(),elseStmts.asIR())]
+        },
+
+        ParamList(firstParam,_,restOfParams) {
+            let firstIdent = firstParam.child(0)?.asIR() ?? [];
+            let rest = restOfParams.children.flatMap(p => p.asIR())
+            return firstIdent.concat(rest);
+        },
+
+        ProcDef(_,name,__,paramList,___,_____,statements,______) {
+            let params = paramList.asIR()
+            let stmts = statements.asIR()
+            return [new ProcedureDef(name.asIR()[0],params,stmts)]
+        },
+
+        ArgList(firstArg,_,restOfArgs) {
+            let firstArgument = firstArg.child(0)?.asIR() ?? [];
+            let rest = restOfArgs.children.flatMap(a => a.asIR());
+            return firstArgument.concat(rest);
+        },
+
+        ProcCall(_,procName,__,args) {
+            let procedure = procName.asIR()[0]
+            let arguments = args.asIR()
+            return [new ProcedureCall(procedure,arguments)]
         }
     })
     

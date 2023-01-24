@@ -1,6 +1,6 @@
 
 const assert = require("assert");
-const {assertNotNull,assertIsNum,ifUndefined} = require("./util")
+const {assertNotNull,assertIsNum,ifUndefined,assertNonEmpty} = require("./util")
 
 class Comment
 {
@@ -238,6 +238,56 @@ class VarAssign extends Statement
 
 VarAssign.action = 'VarAssign'
 
+/**
+ * A procedure definition.
+ * It has a name, which will be used to call it, a list of parameters 
+ *  and statements - the body of the procedure.
+ */
+class ProcedureDef extends Statement
+{
+    constructor(_procName,_parameters,_statements)
+    {
+        super(ProcedureDef.action)
+        this._procName = assertNonEmpty(_procName)
+        assertNotNull(_parameters)
+        this._parameters = _parameters
+        assertNotNull(_statements)
+        this._statements = _statements
+    }
+
+    /**
+     * The procedure name
+     */
+    get name() { return this._procName }
+    /**
+     * The declared parameters.
+     * Array of identifiers.
+     */
+    get parameters() { return this._parameters }
+
+    get statements() { return this._statements }
+}
+ProcedureDef.action = 'ProcDef'
+
+/**
+ * An invocation of a procedure.
+ * Defined by the procedure name, and the arguments (expressions).
+ */
+class ProcedureCall extends Statement
+{
+    constructor(_procName,_arguments)
+    {
+        super(ProcedureCall.action)
+        this._procName = assertNonEmpty(_procName);
+        assertNotNull(_arguments)
+        this._args = _arguments
+    }
+
+    get name() { return this._procName }
+    get arguments() { return this._args }
+}
+ProcedureCall.action = 'ProcCall'
+
 module.exports = {
     Forward,
     Right,
@@ -252,5 +302,7 @@ module.exports = {
     VarEvaluation,
     VarAssign,
     Branch,
-    WhileLoop
+    WhileLoop,
+    ProcedureDef,
+    ProcedureCall
 }
