@@ -581,5 +581,19 @@ describe('Parser', function () {
 
       parseAndCompare(testSource,expectedProgram)
     })
+
+    it ("parses a procedure call with 0 arguments",function() {
+      let testSource = String.raw`
+      call add2;
+      `
+
+      let expectedProgram = new Program([
+        new ProcedureCall("add2",[
+          
+        ])
+      ])
+
+      parseAndCompare(testSource,expectedProgram)   
+    })
   });
 });

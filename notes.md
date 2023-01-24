@@ -182,3 +182,34 @@ while sides < (shapeCount + minSides)
   sides = sides + 1;
 end;
 ```
+
+8. A procedure definition and call
+
+```
+let shapeCount = 20;
+let minSides = 2;
+
+procedure shape(_sides,size):
+  repeat _sides
+    if (_sides % 3) == 0 then
+      pc blue;
+    else
+      pc green;
+    end;
+    fd 50;
+    if (_sides % 2) == 0 then
+      let x = 5;
+      rt 360/_sides;
+    else
+      lt 360/_sides;
+    end;
+
+  end;
+end;
+
+let sides = minSides;
+while sides < (shapeCount + minSides)
+  call shape with _sides = sides, size = 50;
+  sides = sides + 1;
+end;
+```

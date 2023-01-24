@@ -64,7 +64,8 @@ const g = String.raw`
         ProcDef = procedure ident "(" ParamList ")" ":" ProgramElements block_end
         
         ArgList =  (VarAssign)? ("," VarAssign)*
-        ProcCall = call ident with ArgList
+        ProcCall = call ident with ArgList --withArgs
+        | call ident --noArgs
 
 
         ///------------- Comparsion Operators
@@ -297,7 +298,7 @@ function createParser()
         },
 
         ParamList(firstParam,_,restOfParams) {
-            let firstIdent = firstParam.child(0)?.asIR() ?? [];
+            let firstIdent = firstParam.children.flatMap(p => p.asIR());
             let rest = restOfParams.children.flatMap(p => p.asIR())
             return firstIdent.concat(rest);
         },
@@ -309,15 +310,20 @@ function createParser()
         },
 
         ArgList(firstArg,_,restOfArgs) {
-            let firstArgument = firstArg.child(0)?.asIR() ?? [];
+            let firstArgument = firstArg.children.flatMap(a => a.asIR());
             let rest = restOfArgs.children.flatMap(a => a.asIR());
             return firstArgument.concat(rest);
         },
 
-        ProcCall(_,procName,__,args) {
+        ProcCall_withArgs(_,procName,__,args) {
             let procedure = procName.asIR()[0]
             let arguments = args.asIR()
             return [new ProcedureCall(procedure,arguments)]
+        },
+
+        ProcCall_noArgs(_,procName) {
+            let procedure = procName.asIR()[0]
+            return [new ProcedureCall(procedure,[])]
         }
     })
     
