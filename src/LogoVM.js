@@ -169,8 +169,9 @@ class LogoVM
             2. prepend to the var declarations to the statements
             3. execute the resulting block
         */
+       //todo: consider what happens when a parameter is called like an external variable. Ideally(?) it should hide the external variable
         let procDef = vmState.getProcedure(callStmt.name)
-        let varDecls = callStmt.arguments.map(arg => new VarDecl(arg.varName,arg.rhs))
+        let varDecls = callStmt.arguments.map(arg => new VarDecl(arg.varName,arg.rhs)) 
         let block = varDecls.concat(procDef.statements)
         return this._execBlock(block,vmState)
     }
