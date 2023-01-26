@@ -2,11 +2,12 @@
 const _ohm = require('ohm-js')
 const ohm = _ohm.default || _ohm; //workaround to allow importing using common js in node (for testing), and packing w/ webpack.
 
-const {Forward,Right, Program, Loop, SetPenColor,
-       PenActive, Comment, BinaryOp, 
-       NumberLiteral,VarEvaluation,VarDecl,
-       VarAssign,Branch,WhileLoop,
-       ProcedureDef,ProcedureCall} = require("./IR")
+const { Forward,Right, Program, Loop, SetPenColor,
+        PenActive, Comment, BinaryOp, 
+        NumberLiteral,VarEvaluation,VarDecl,
+        VarAssign,Branch,WhileLoop,
+        ProcedureDef,ProcedureCall,
+        Output } = require("./IR")
 
 const g = String.raw`
     LogoSVG {
@@ -38,13 +39,14 @@ const g = String.raw`
         procedure = "procedure"
         call = "call"
         with = "with"
+        say = "say"
 
         ///---------- Statements
         Statement = Forward | Right | Left | Loop 
                     | Pen_color | Pen_up | Pen_down
                     | Back | VarDecl | VarAssign 
                     | Branch | WhileLoop | ProcDef
-                    | ProcCall
+                    | ProcCall | Say
 
         Forward = fd Expr
         Back = bk Expr
@@ -67,6 +69,9 @@ const g = String.raw`
         ProcCall = call ident with ArgList --withArgs
         | call ident --noArgs
 
+        textCharacter = alnum | space
+        TextLiteral = textCharacter*
+        Say = say "'" TextLiteral "'" //only literal text
 
         ///------------- Comparsion Operators
         ComparisonOp = "<" | ">" | "<=" | ">="
@@ -324,6 +329,15 @@ function createParser()
         ProcCall_noArgs(_,procName) {
             let procedure = procName.asIR()[0]
             return [new ProcedureCall(procedure,[])]
+        },
+
+        TextLiteral(s) {
+            return [s.sourceString]
+        },
+
+        Say(_,__,_msg,___) {
+            let msg = _msg.asIR()[0]
+            return [new Output(msg.length > 0 ? msg : "")]
         }
     })
     

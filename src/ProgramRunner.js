@@ -11,9 +11,9 @@ function radians(deg)
 
 class ProgramRunner
 {
-    constructor(context,_drawingElement)
+    constructor(context,_drawingElement,msgCallback)
     {
-        this.vm = new LogoVM(_drawingElement);
+        this.vm = new LogoVM(_drawingElement,undefined,msgCallback);
         this.context = context;
         this.cursorObj = this.createCursor(this.context);
         this.moveCursorToContext()

@@ -7,7 +7,7 @@ const {assertIsNum } = require("./util")
 var initialCursorCoords = { x : 0, y : 0, angle : 0}
 var programRunner = null;
 
-function initApp(drawingContainer,startingX,startingY,startingAngle)
+function initApp(drawingContainer,startingX,startingY,startingAngle,msgCallback)
 {
     assertIsNum(startingX);
     assertIsNum(startingY);
@@ -18,7 +18,7 @@ function initApp(drawingContainer,startingX,startingY,startingAngle)
     startingY *=1;
     let context = new VMState(startingX,startingY,startingAngle);
     initialCursorCoords = { x: startingX, y: startingY, angle : startingAngle}
-    programRunner = new ProgramRunner(context,drawingContainer);
+    programRunner = new ProgramRunner(context,drawingContainer,msgCallback);
     return programRunner
 }
 

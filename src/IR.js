@@ -288,6 +288,18 @@ class ProcedureCall extends Statement
 }
 ProcedureCall.action = 'ProcCall'
 
+class Output extends Statement
+{
+    constructor(msg)
+    {
+        super(Output.action);
+        this.msg = ifUndefined(msg,"")
+    }
+
+    get message() { return this.msg }
+}
+Output.action = 'Output'
+
 module.exports = {
     Forward,
     Right,
@@ -304,5 +316,6 @@ module.exports = {
     Branch,
     WhileLoop,
     ProcedureDef,
-    ProcedureCall
+    ProcedureCall,
+    Output
 }

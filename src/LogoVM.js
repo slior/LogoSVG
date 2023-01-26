@@ -1,12 +1,12 @@
 
 const assert = require('assert')
 const { SVG } = require('@svgdotjs/svg.js')
-const {assertNonNegativeNum,assertNotNull} = require("./util")
+const {assertNonNegativeNum,assertNotNull,ifUndefined} = require("./util")
 const { Forward,Right, Loop, SetPenColor, 
         PenActive, NumberLiteral, BinaryOp,
         VarDecl,VarEvaluation,VarAssign,
         Branch,WhileLoop, ProcedureDef,
-        ProcedureCall} = require("./IR")
+        ProcedureCall,Output} = require("./IR")
 
 
 
@@ -91,6 +91,7 @@ function commandMap(processor)
         statements[WhileLoop.action] = (st,vms) => processor.whileLoop(st,vms)
         statements[ProcedureDef.action] = (st,vms) => processor.defineProcedure(st,vms)
         statements[ProcedureCall.action] = (st,vms) => processor.callProcedure(st,vms)
+        statements[Output.action] = (st,vms) => processor.output(st,vms)
         STATEMENT_MAP = statements;
     }
     return STATEMENT_MAP
@@ -108,12 +109,13 @@ class LogoVM
      * @param {Object} drawingElement The containing element in which to draw the result
      * @param {Function} vmUnderlyingImpl A builder function that creates the underlying implementation. Allows injecting mock implementations. Defaults to an internal SVG implementation
      */
-    constructor(drawingElement, vmUnderlyingImpl = undefined)
+    constructor(drawingElement, vmUnderlyingImpl = undefined,msgCallback = undefined)
     {
         assertNotNull(drawingElement);
         this.draw = vmUnderlyingImpl === undefined ?
              createSVGImpl(drawingElement) : vmUnderlyingImpl(drawingElement)
         this.exprEvaluator = new ExprEval()
+        this.outputCallback = ifUndefined(msgCallback,(m) => console.log(m))
     }
 
     get drawingObj() {
@@ -148,6 +150,12 @@ class LogoVM
             console.log(`command ${st.action} not recognized`);
             return vmState;
         }
+    }
+
+    output(outStmt,vmState)
+    {
+        this.outputCallback(outStmt.message)
+        return vmState
     }
 
     defineProcedure(procDef,vmState)

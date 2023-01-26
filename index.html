@@ -5,6 +5,14 @@
         .errorText { 
             color: red;
         }
+
+        .consoleText {
+            color : black;
+            font-family:Courier, monospace;
+            overflow-y: auto;
+            height: 100px;
+            border: 1px solid black;
+        }
         
         button {
             color: #090909;
@@ -122,7 +130,7 @@
         let startAngle = params.get("angle") || DEFAULT_STARTING_ANGLE;
         
         let drawingBoard = document.getElementById('drawing')
-        runner = main.initApp(drawingBoard,startX,startY,startAngle)
+        runner = main.initApp(drawingBoard,startX,startY,startAngle,showMsg)
     }
 
     function parseAndExecuteProgram()
@@ -140,6 +148,13 @@
         }
     }
 
+    function showMsg(msg)
+    {
+        let m = msg || ''
+        console.log(m)
+        document.getElementById('cons').innerHTML += m + "<br/>"
+    }
+
     function showError(msg)
     {
         console.error(msg || '')
@@ -150,10 +165,16 @@
         document.getElementById("error").innerText = ""
     }
 
+    function clearConsole()
+    {
+        document.getElementById('cons').innerText = ''
+    }
+
     function reset()
     {
         main.resetState();
         clearError()
+        clearConsole();
     }
 
     function clearDrawing()
@@ -177,6 +198,8 @@
     <button onclick="parseAndExecuteProgram()"> Execute </button>
     <button onclick="reset()">Reset</button>
         <hr/>
+    <div id="cons" class="consoleText" ></div>
     <span id="error" class="errorText" ></span>
+    
 </body>
 </html>

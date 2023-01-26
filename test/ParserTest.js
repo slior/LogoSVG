@@ -4,7 +4,7 @@ const {Forward,Right, Program, Loop,SetPenColor,
        PenActive, Comment, BinaryOp,
        NumberLiteral,VarDecl,VarEvaluation,
        VarAssign,Branch,WhileLoop,
-       ProcedureDef,ProcedureCall} = require("../src/IR");
+       ProcedureDef,ProcedureCall,Output} = require("../src/IR");
 const {number,binOp} = require("./util")
 
 function parseAndCompare(testSource,expectedIR) 
@@ -594,6 +594,18 @@ describe('Parser', function () {
       ])
 
       parseAndCompare(testSource,expectedProgram)   
+    })
+
+    it ("parses a 'say' command",function() {
+      let testSource = String.raw`
+      say 'hello world';
+      `
+
+      let expectedProgram = new Program([
+        new Output("hello world")
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
     })
   });
 });
