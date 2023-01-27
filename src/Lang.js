@@ -9,8 +9,7 @@ const { Forward,Right, Program, Loop, SetPenColor,
         ProcedureDef,ProcedureCall,
         Output } = require("./IR")
 
-        
-const lang = ohm.grammar(loadGrammar('english_terse'));
+
 
 function loadGrammar(name)
 {
@@ -18,8 +17,9 @@ function loadGrammar(name)
     return grammarText;
 }
 
-function createParser()
+function createParser(variant)
 {
+    const lang = ohm.grammar(loadGrammar(variant));
     let irBuilder = lang.createSemantics();
 
     const binOpIR = (op,arg1Node,arg2Node) => {

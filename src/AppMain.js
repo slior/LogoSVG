@@ -35,10 +35,11 @@ function resetState()
     }
 }
 
-function parseCode(programCode)
+function parseCode(programCode,variant)
 {
-    let parser = createParser()
+    if (!variant) throw new Error("Unspecified language variant")
 
+    let parser = createParser(variant)
     let program = parser(programCode);
     return program;
 }

@@ -7,9 +7,16 @@ const {Forward,Right, Program, Loop,SetPenColor,
        ProcedureDef,ProcedureCall,Output} = require("../src/IR");
 const {number,binOp} = require("./util")
 
+function createDefaultParser()
+{
+  if (!createDefaultParser.cached)
+    createDefaultParser.cached = createParser('english_terse') //tests are for the default variant
+  return createDefaultParser.cached
+}
+
 function parseAndCompare(testSource,expectedIR) 
 {
-  let p = createParser()
+  let p = createDefaultParser()
   let result = p(testSource)
   assert.deepStrictEqual(result,expectedIR)
 }
@@ -348,14 +355,14 @@ describe('Parser', function () {
             bk 50;
           end;
         `
-        createParser()(problemSource)
+        createDefaultParser()(problemSource)
       },/not a reserved_word/,"trying to parse 'fd' as an identifier")
 
       assert.throws(() => {
         let problemSource = String.raw`
           let repeat = 5;
         `
-        createParser()(problemSource)
+        createDefaultParser()(problemSource)
       },/not a reserved_word/,"trying to parse 'repeat' as a variable name")
 
 

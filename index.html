@@ -119,8 +119,10 @@
     const DEFAULT_STARTING_X = 100;
     const DEFAULT_STARTING_Y = 100;
     const DEFAULT_STARTING_ANGLE = 270;
+    const DEFAULT_VARIANT = 'english_terse'
 
     var runner;
+    var variant = DEFAULT_VARIANT
 
     function init()
     {
@@ -128,6 +130,7 @@
         let startX = params.get("x") || DEFAULT_STARTING_X;
         let startY = params.get("y") || DEFAULT_STARTING_Y;
         let startAngle = params.get("angle") || DEFAULT_STARTING_ANGLE;
+        variant = params.get('variant') || DEFAULT_VARIANT;
         
         let drawingBoard = document.getElementById('drawing')
         runner = main.initApp(drawingBoard,startX,startY,startAngle,showMsg)
@@ -139,7 +142,7 @@
         {
             clearError()
             let code = document.getElementById('programCode').value;
-            let program = main.parseCode(code);
+            let program = main.parseCode(code,variant);
             runner.run(program);
         }
         catch (err)
@@ -150,7 +153,7 @@
 
     function showMsg(msg)
     {
-        let m = msg || ''
+        let m = msg || '';//TODO: clean input message - escape html
         console.log(m)
         document.getElementById('cons').innerHTML += m + "<br/>"
     }
