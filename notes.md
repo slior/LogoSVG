@@ -168,6 +168,16 @@ while iters > 0
 end;
 ```
 
+Same example using hebrew variant keywords:
+```
+יהא iters = 4;
+כלעוד iters > 0
+  קד 50;
+  ימ 90;
+  iters = iters -1;
+סוף;
+```
+
 Drawing several shapes using loops
 ```
 let shapeCount = 20;
