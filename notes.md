@@ -178,6 +178,16 @@ Same example using hebrew variant keywords:
 סוף;
 ```
 
+Same example using hebrew keywords and identifier:
+```
+יהא סיבוב = 4;
+כלעוד סיבוב > 0
+  קד 50;
+  ימ 90;
+  סיבוב = סיבוב -1;
+סוף;
+```
+
 Drawing several shapes using loops
 ```
 let shapeCount = 20;
@@ -200,12 +210,13 @@ let shapeCount = 20;
 let minSides = 2;
 
 procedure shape(_sides,size):
-  repeat _sides
-    if (_sides % 3) == 0 then
+  if (_sides % 3) == 0 then
       pc blue;
     else
       pc green;
     end;
+  
+  repeat _sides
     fd 50;
     if (_sides % 2) == 0 then
       let x = 5;
@@ -222,4 +233,45 @@ while sides < (shapeCount + minSides)
   call shape with _sides = sides, size = 50;
   sides = sides + 1;
 end;
+```
+
+Same example, in hebrew:
+```
+יהא מספר_צורות = 20;
+יהא מינ_צלעות = 2;
+
+שגרה צורה(צד,גודל):
+    אם (צד % 3) == 0 אז
+      צבע blue;
+    אחרת
+      צבע green;
+    סוף;
+  חזור צד
+    קד 50;
+    אם (צד % 2) == 0 אז
+       ימ 360/צד;
+    אחרת
+      שמ 360/צד;
+    סוף;
+  סוף;
+סוף;
+
+יהא צלעות = מינ_צלעות;
+כלעוד צלעות < (מספר_צורות + מינ_צלעות)
+  הפעל צורה עם צד = צלעות, גודל = 50;
+  צלעות = צלעות + 1;
+סוף;
+```
+
+9. Defining a square procedure and invoking it, in hebrew:
+```
+שגרה ריבוע (גודל):
+  חזור 4
+    קד גודל;
+    ימ 90;
+  סוף;
+סוף;
+
+הפעל ריבוע עם גודל=80;
+
 ```

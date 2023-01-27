@@ -20,7 +20,7 @@ LogoSVG {
         pc = "\u05E6\u05D1\u05E2" //צבע
         pu = "\u05D4\u05E8\u05DD" //הרם
         pd = "\u05D4\u05D5\u05E8\u05D3" //הורד
-        repeat = "\u05D7\u05D6\u05E8\u05E8" //חזור
+        repeat = "\u05D7\u05D6\u05D5\u05E8" //חזור
         block_end = "\u05E1\u05D5\u05E3" //סוף
         let = "\u05D9\u05D4\u05D0" //יהא
         if = "\u05D0\u05DD"  //אם
@@ -98,8 +98,8 @@ LogoSVG {
         
 
         ///----------- Other complementary definitions
-        identStart = "_" | letter
-        identChar = "_" | alnum
+        identStart = "_" | letter | "\u05D0".."\u05EA"
+        identChar = "_" | alnum | "\u05D0".."\u05EA"
         full_ident = identStart identChar*
 
         ident = ~reserved_word full_ident
