@@ -9,17 +9,31 @@ const { Forward,Right, Program, Loop, SetPenColor,
         ProcedureDef,ProcedureCall,
         Output } = require("./IR")
 
+const BASE_GRAMMAR_VARIANT = "english_terse"
 
+function createGrammarNS()
+{
+    return ohm.createNamespace({BaseGrammar : ohm.grammar(loadGrammarSource(BASE_GRAMMAR_VARIANT))})
+}
 
-function loadGrammar(name)
+function loadGrammarSource(name)
 {
     let grammarText = require(`../res/grammar/${name}.ohm.js`)
     return grammarText;
 }
 
+function resolveGrammar(name)
+{
+    let ns = createGrammarNS()
+    if (name == BASE_GRAMMAR_VARIANT)
+        return ns.BaseGrammar
+    else
+        return ohm.grammar(loadGrammarSource(name),ns)
+}
+
 function createParser(variant)
 {
-    const lang = ohm.grammar(loadGrammar(variant));
+    const lang = resolveGrammar(variant)
     let irBuilder = lang.createSemantics();
 
     const binOpIR = (op,arg1Node,arg2Node) => {
