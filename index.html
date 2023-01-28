@@ -131,6 +131,7 @@
         let startY = params.get("y") || DEFAULT_STARTING_Y;
         let startAngle = params.get("angle") || DEFAULT_STARTING_ANGLE;
         variant = params.get('variant') || DEFAULT_VARIANT;
+        document.getElementById('editorTitle').innerText += ` (${variant})`
         
         let drawingBoard = document.getElementById('drawing')
         runner = main.initApp(drawingBoard,startX,startY,startAngle,showMsg)
@@ -194,7 +195,7 @@
     <hr/>
     <div class="wrapper">
         <div class="cmd">
-            <div class="title-bar">Program</div>
+            <div class="title-bar" id="editorTitle">Program</div>
             <textarea id="programCode" placeholder="Your code here" class="textarea"></textarea>
         </div>
     </div>
