@@ -132,7 +132,7 @@ class VMState
 
     withNewVar(varName,initialValue) 
     {
-        if (!this._isVarDefined(varName))
+        if (!this._isVarDefinedInActiveScope(varName))
         {
             return this._newStateWithNewVar(varName,initialValue)
         }
@@ -140,13 +140,24 @@ class VMState
     }
 
     /**
-     * Creates a new state with the given value for the given variable, in the active scope
+     * Tests whether the given variable name is defined in the active scope
+     * @param {String} varName The variable name
+     * @returns TRUE iff the variable is already defined in the current active scope
+     */
+    _isVarDefinedInActiveScope(varName)
+    {
+        return this.activeScope.definesVariable(varName)
+    }
+
+    /**
+     * Creates a new state with the given value for the given variable
      * @param {String} varName The variable name
      * @param {Number} value The variable value
+     * @returns The new state
      */
     withVarValue(varName,value)
     {
-        if (this._isVarDefined(varName))
+        if (this._isVarDefined(varName)) //we allow also changing a value in outer scopes
             return this._newStateWithModifiedVar(varName,value)
         else throw new Error(`Can't assign value to undeclared variable '${varName}'`)
     }
@@ -190,9 +201,15 @@ class VMState
         return VMState.newFromExisting(this,{scopes : newScopes})
     }
 
+    /**
+     * Set the given variable in the active scope
+     * @param {String} varName The variable name
+     * @param {Any} value The variable value
+     * @returns The new state, with the new variable set in the active scope
+     */
     _newStateWithNewVar(varName,value) {
-        if (this._isVarDefined(varName))
-            throw new Error(`Variable ${varName} already defined`)
+        if (this._isVarDefinedInActiveScope(varName))
+            throw new Error(`Variable ${varName} already defined in current scope`)
         else
         {
             let newScopes = this._scopes.slice(0,this._scopes.length-1)

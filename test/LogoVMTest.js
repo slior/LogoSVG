@@ -1,4 +1,5 @@
 const assert = require('assert');
+const should = require('should')
 const { LogoVM } = require('../src/LogoVM')
 const { VMState } = require('../src/VMState')
 const { number,binOp } = require("./util")
@@ -252,6 +253,34 @@ describe("LogoVM",function() {
             assert.strictEqual(s3.lastX,200 + 4 * (50+20))
             assert.strictEqual(s3.activeScope.definesVariable("sides"),false)
 
+        })
+
+        it("Should allow parameter names that hide outer scope variables",function() {
+            
+            //The following is hacky, but allows to mock just one method in the vm class
+            let MockedLogoVM = require('../src/LogoVM').LogoVM
+            origCallProc = MockedLogoVM.prototype.callProcedure //keep pointer to the original implementation
+            MockedLogoVM.prototype.callProcedure = (pc,st) => { //mock 'callProcedure'
+                pc.arguments[0].should.deepEqual(new VarAssign("sides",number(5)))
+                return origCallProc.apply(vm,[pc,st]) //note that this assumes 'vm' is in context, and points to LogoVM (or its mock)
+            }
+            let vm = new MockedLogoVM({},createMockVMImpl)
+
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.declareVar(new VarDecl("sides",number(4)),s1)
+            let s3 = vm.defineProcedure(new ProcedureDef("shape",["sides","size"],
+            [
+              new Loop(new VarEvaluation("sides"),[
+                new Forward(new VarEvaluation("size")),
+                new Right(binOp("/",number(360),new VarEvaluation("sides")))
+              ])
+            ]),s2)
+
+            let s4 = vm.callProcedure(new ProcedureCall("shape",[
+                new VarAssign("sides",number(5)),
+                new VarAssign("size",number(50))
+            ]),s3)
+            assert.strictEqual(s4.valueOf("sides"),4)
         })
     })
 })

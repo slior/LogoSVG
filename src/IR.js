@@ -271,7 +271,7 @@ ProcedureDef.action = 'ProcDef'
 
 /**
  * An invocation of a procedure.
- * Defined by the procedure name, and the arguments (expressions).
+ * Defined by the procedure name, and the arguments (var assignments).
  */
 class ProcedureCall extends Statement
 {
