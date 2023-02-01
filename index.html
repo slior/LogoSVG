@@ -113,6 +113,8 @@
 
 
     </style>
+    <script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
+    
     <script src="./main.js"></script>
 <script>
 
@@ -131,10 +133,25 @@
         let startY = params.get("y") || DEFAULT_STARTING_Y;
         let startAngle = params.get("angle") || DEFAULT_STARTING_ANGLE;
         variant = params.get('variant') || DEFAULT_VARIANT;
-        document.getElementById('editorTitle').innerText += ` (${variant})`
         
         let drawingBoard = document.getElementById('drawing')
-        runner = main.initApp(drawingBoard,startX,startY,startAngle,showMsg)
+        let editorParent = document.getElementById('editorContainer')
+        initEditor()
+        runner = main.initApp(drawingBoard,startX,startY,startAngle,showMsg,editorParent)
+    }
+
+    var editor = null;
+
+    function initEditor()
+    {
+        require.config({ paths: { vs: './node_modules/monaco-editor/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
+             editor = monaco.editor.create(document.getElementById('editorContainer'), {
+                value: 'const x = 5;',
+                language: 'javascript',
+                theme:'vs-dark'
+            });
+        });
     }
 
     function parseAndExecuteProgram()
@@ -142,7 +159,7 @@
         try
         {
             clearError()
-            let code = document.getElementById('programCode').value;
+            let code = editor && editor.getValue()
             let program = main.parseCode(code,variant);
             runner.run(program);
         }
@@ -194,9 +211,7 @@
     <div id="drawing" class="drawingArea"></div>
     <hr/>
     <div class="wrapper">
-        <div class="cmd">
-            <div class="title-bar" id="editorTitle">Program</div>
-            <textarea id="programCode" placeholder="Your code here" class="textarea"></textarea>
+        <div class="cmd" id="editorContainer">
         </div>
     </div>
     <button onclick="parseAndExecuteProgram()"> Execute </button>
