@@ -53,16 +53,15 @@
             width: 99vw;
             height: 45vh;
             
-            
             display: flex;
             align-items: stretch;
             justify-content: left;
+            flex-direction: column;
         }
 
         .cmd{
             position: relative;
             display: block;
-            
             /* height: 600px; */
             height: 40vh;
             width: 100%;
@@ -79,8 +78,9 @@
         * 3. Style
         */
         .title-bar{
+            
             /* 1 */
-            position: absolute;
+            position: relative;
             top: 0;
             left: 0;
             right: 0;
@@ -94,22 +94,10 @@
             font-weight: 600;
             background-color: #242424;
             text-align: left;
+            border-bottom: 1px solid white;
+            padding-left: 5px;
         }
 
-        .textarea{
-            position: relative;
-            top: 40px;
-            padding: 12px;
-            
-            resize: none;
-            width: 100%;
-            height: calc(100%);
-            background-color: #4b1d3f;
-            border: none;
-            color: #FFFFFF;
-            margin: 0px;
-            font-size: 1.1rem;
-        }
 
 
     </style>
@@ -133,6 +121,7 @@
         let startY = params.get("y") || DEFAULT_STARTING_Y;
         let startAngle = params.get("angle") || DEFAULT_STARTING_ANGLE;
         variant = params.get('variant') || DEFAULT_VARIANT;
+        document.getElementById('titleBar').innerText += ` (${variant})`
         
         let drawingBoard = document.getElementById('drawing')
         let editorParent = document.getElementById('editorContainer')
@@ -301,6 +290,7 @@
     <div id="drawing" class="drawingArea"></div>
     <hr/>
     <div class="wrapper">
+        <div class="title-bar" id="titleBar">Program</div>
         <div class="cmd" id="editorContainer">
         </div>
     </div>
