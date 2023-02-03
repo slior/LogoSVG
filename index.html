@@ -98,7 +98,21 @@
             padding-left: 5px;
         }
 
-
+        .rtl_editor_textarea{
+            position: relative;
+            top: 0px;
+            padding: 12px;
+            text-align: right;
+            direction: rtl;
+            resize: none;
+            width: 100%;
+            height: calc(100%);
+            background-color: #4b1d3f;
+            border: none;
+            color: #FFFFFF;
+            margin: 0px;
+            font-size: 1.1rem;
+        }
 
     </style>
     <!-- Loader and code for initializing the editor -->
@@ -128,19 +142,41 @@
         document.getElementById('titleBar').innerText += ` (${variant})`
         
         let drawingBoard = document.getElementById('drawing')
-        let editorParent = document.getElementById('editorContainer')
-        initEditor(document.getElementById('editorContainer'))
-        runner = main.initApp(drawingBoard,startX,startY,startAngle,showMsg,editorParent)
+        if (!isRTL(variant))
+        {
+            let editorParent = document.getElementById('editorContainer')
+            initEditor(editorParent)
+        }
+        else
+        {
+            switchToRTLEditor()
+        }
+        runner = main.initApp(drawingBoard,startX,startY,startAngle,showMsg)
     }
 
+    function isRTL(_variant)
+    {
+        return _variant.toLowerCase() == 'hebrew'
+    } 
     
+    function switchToRTLEditor()
+    {
+        document.getElementById('editorContainer').style.display = 'none'
+        document.getElementById('rtlEditorContainer').style.display = 'block'
+    }
 
+    function getCodeFromEditor()
+    {
+        return isRTL(variant) ? 
+            document.getElementById('rtlEditor').value
+            : getCode(); //retrievs it from the monaco editor - defined in Editor.js
+    }
     function parseAndExecuteProgram()
     {
         try
         {
             clearError()
-            let code = getCode(); //getCode defined in Editor.js
+            let code = getCodeFromEditor();
             let program = main.parseCode(code,variant);
             runner.run(program);
         }
@@ -174,9 +210,16 @@
 
     function reset()
     {
-        main.resetState();
-        clearError()
-        clearConsole();
+        try
+        {   
+            main.resetState();
+            clearError()
+            clearConsole();
+        }
+        catch (err)
+        {
+            showError(err.toString())
+        }
     }
 
     function clearDrawing()
@@ -194,6 +237,9 @@
     <div class="wrapper">
         <div class="title-bar" id="titleBar">Program</div>
         <div class="cmd" id="editorContainer">
+        </div>
+        <div class="cmd" id="rtlEditorContainer" style="display: none;">
+            <textarea id="rtlEditor" class="rtl_editor_textarea"></textarea>
         </div>
     </div>
     <button onclick="parseAndExecuteProgram()"> Execute </button>
