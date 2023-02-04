@@ -18,7 +18,7 @@ function createGrammarNS()
 
 function loadGrammarSource(name)
 {
-    let grammarText = require(`../res/grammar/${name}.ohm.js`)
+    let grammarText = require(`../res/grammar/${name}.ohm.js`).grammar
     return grammarText;
 }
 
@@ -29,6 +29,12 @@ function resolveGrammar(name)
         return ns.BaseGrammar
     else
         return ohm.grammar(loadGrammarSource(name),ns)
+}
+
+function getLanguageKeywords(name)
+{
+    let ret = require(`../res/grammar/${name}.ohm.js`).keywords
+    return ret;
 }
 
 function createParser(variant)
@@ -259,5 +265,6 @@ function createParser(variant)
 }
 
 module.exports = {
-    createParser
+    createParser,
+    getLanguageKeywords
 }

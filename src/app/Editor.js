@@ -1,6 +1,6 @@
 var editor = null;
 
-function configLangInEditor(monaco)
+function configLangInEditor(monaco,_keywords)
 {
     monaco.languages.register({ id: 'logojs' });
     monaco.languages.setMonarchTokensProvider('logojs',{
@@ -8,10 +8,7 @@ function configLangInEditor(monaco)
         // Set defaultToken to invalid to see what you do not tokenize yet
         // defaultToken: 'invalid',
 
-        keywords: [
-            'fd', 'rt', 'repeat', 'end', 'procedure', 'let', 'if', 'else', 'while', 'true', 'false',
-            'bk','lt','pc','pd','pu','call','then', 'say','with'
-        ],
+        keywords: _keywords,
 
         typeKeywords: [
             'number'
@@ -80,12 +77,12 @@ function configLangInEditor(monaco)
     })
 }
 
-function initEditor(container)
+function initEditor(container,_keywords)
 {
     require.config({ paths: { vs: './lib/monaco-editor/min/vs' } });
 
     require(['vs/editor/editor.main'], function () {
-        configLangInEditor(monaco)
+        configLangInEditor(monaco,_keywords)
         editor = monaco.editor.create(container, {
             value: 'fd 100;',
             language: 'logojs',

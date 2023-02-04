@@ -1,5 +1,26 @@
 //Grammar as a js file, so it will work in browser (w/ webpack)
 
+const _keywords = {
+    fd : "fd",
+    bk : "bk",
+    rt : "rt",
+    lt : "lt",
+    pc : "pc",
+    pu : "pu",
+    pd : "pd",
+    repeat : "repeat",
+    block_end : "end",
+    let : "let",
+    if : "if",
+    then : "then",
+    else : "else",
+    while : "while",
+    procedure : "procedure",
+    call : "call",
+    with : "with",
+    say : "say",
+}
+
 const grammar = String.raw`
 LogoSVG {
         Program = ProgramElements
@@ -13,24 +34,10 @@ LogoSVG {
                         | let | if | then | else
                         | while | procedure | call
                         | with
-        fd = "fd"
-        bk = "bk"
-        rt = "rt"
-        lt = "lt"
-        pc = "pc"
-        pu = "pu"
-        pd = "pd"
-        repeat = "repeat"
-        block_end = "end"
-        let = "let"
-        if = "if"
-        then = "then"
-        else = "else"
-        while = "while"
-        procedure = "procedure"
-        call = "call"
-        with = "with"
-        say = "say"
+
+        ${Object.keys(_keywords)
+            .map(k => `${k} = "${_keywords[k]}"`)
+            .join("\n")}
 
         ///---------- Statements
         Statement = Forward | Right | Left | Loop 
@@ -109,4 +116,4 @@ LogoSVG {
 
     }
     `
-module.exports = grammar
+module.exports = { grammar, keywords :  Object.values(_keywords) }

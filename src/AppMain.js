@@ -1,6 +1,6 @@
 
 const { VMState } = require("./VMState.js")
-const { createParser } = require("./Lang")
+const { createParser,getLanguageKeywords } = require("./Lang")
 const { ProgramRunner } = require("./ProgramRunner")
 const {assertIsNum } = require("./util")
 
@@ -47,5 +47,6 @@ function parseCode(programCode,variant)
 module.exports = {
     initApp,
     parseCode,
-    resetState
+    resetState,
+    getLanguageKeywords
 }

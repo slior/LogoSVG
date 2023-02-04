@@ -145,7 +145,7 @@
         if (!isRTL(variant))
         {
             let editorParent = document.getElementById('editorContainer')
-            initEditor(editorParent)
+            initEditor(editorParent,main.getLanguageKeywords(variant))
         }
         else
         {
