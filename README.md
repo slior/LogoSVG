@@ -4,7 +4,7 @@ This is a very rudimentary implementation for a language (compiler + VM) and acc
 
 It is very much inspired by the [Logo language](https://en.wikipedia.org/wiki/Logo_(programming_language)).
 
-It is implemented purely in Javascript, running in a browser. No server code.
+It is implemented purely in Javascript, running in a browser. No server code.  
 Refer to the [application description](./docs/App.md) and the [language reference](./docs/Lang.md) for more information about available functionality.
 
 

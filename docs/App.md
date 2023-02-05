@@ -11,7 +11,7 @@ You can initialize the application with 3 parameters:
    X values increase to the right.
 2. `y` - the initial y location of the cursor.  
    Y values increase toward the bottom of the canvas area.
-3. The language variant to use.  
+3. `variant` - The language variant to use.  
    Current acceptable values are: `english_terse`, `english_long`, `hebrew`.
 
 For RTL language, namely hebrew, the editor will be different.
