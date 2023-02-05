@@ -11,6 +11,8 @@ Refer to the [application description](./docs/App.md) and the [language referenc
 ## Building
 In order to build simply run `npm run build`.
 
+In order to test (unit tests) run `npm test`.
+
 ## Running
 To access the application, navigate to `index.html`.
 You can simply do this by using a local http server running in the application directory (e.g. [http-server](https://www.npmjs.com/package/http-server)).
