@@ -20,5 +20,6 @@ You can simply do this by using a local http server running in the application d
 ## Major 3rd Party Components
 
 The compiler is implemented using [ohm-js](https://ohmjs.org/).
+The SVG manipulation is done using [SVG.js](https://svgjs.dev/docs/3.0/)
 
 The application uses the [monaco editor](https://microsoft.github.io/monaco-editor/) for the code editor.

@@ -14,9 +14,17 @@ You can initialize the application with 3 parameters:
 3. `variant` - The language variant to use.  
    Current acceptable values are: `english_terse`, `english_long`, `hebrew`.
 
+Parameters are passed as URL parameters when accessing the application.
+
 For RTL language, namely hebrew, the editor will be different.
 
 ## Possible Operations
 `Execute` will try to execute the current program in the editor. It starts with the existing current state, after the last run. Variable and procedure definitions are not erased.
 
 `Reset` will reset the application to its initial state, including a reset of variable and procedure definitions.
+
+## Design
+
+The main components of the application:
+
+![Main components](./Components.drawio.svg)
