@@ -2,7 +2,8 @@
 
 This is a very rudimentary implementation for a language (compiler + VM) and accompanying application that allows you to draw in SVG by issuing specific commands. 
 
-It is very much inspired by the [Logo language](https://en.wikipedia.org/wiki/Logo_(programming_language)).
+It is very much inspired by the [Logo language](https://en.wikipedia.org/wiki/Logo_(programming_language)).  
+Some examples can be found [here](./docs/Examples.md).
 
 It is implemented purely in Javascript, running in a browser. No server code.  
 Refer to the [application description](./docs/App.md) and the [language reference](./docs/Lang.md) for more information about available functionality.
@@ -17,9 +18,11 @@ In order to test (unit tests) run `npm test`.
 To access the application, navigate to `index.html`.
 You can simply do this by using a local http server running in the application directory (e.g. [http-server](https://www.npmjs.com/package/http-server)).
 
+A running online example, though not necessarily up-to-date with recent development, should be available [here](https://schejter.me/games/logosvg/).
+
 ## Major 3rd Party Components
 
-The compiler is implemented using [ohm-js](https://ohmjs.org/).
+The compiler is implemented using [ohm-js](https://ohmjs.org/).  
 The SVG manipulation is done using [SVG.js](https://svgjs.dev/docs/3.0/)
 
 The application uses the [monaco editor](https://microsoft.github.io/monaco-editor/) for the code editor.
