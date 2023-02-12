@@ -68,8 +68,10 @@ LogoSVG {
         | call ident --noArgs
 
         textCharacter = alnum | space
-        TextLiteral = textCharacter*
-        Say = say "'" TextLiteral "'" //only literal text
+        textLiteral = "'" spaces textCharacter* spaces "'"
+        Say = say TextExpr
+        TextExpr = TextExpr "++" textLiteral --concat
+        | textLiteral
 
         ///------------- Comparsion Operators
         ComparisonOp = "<" | ">" | "<=" | ">="

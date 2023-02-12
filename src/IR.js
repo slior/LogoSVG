@@ -172,6 +172,18 @@ class NumberLiteral extends Expr
     get number() { return this._number }
 }
 
+class TextLiteral extends Expr
+{
+    constructor(txt)
+    {
+        super();
+        assertNotNull(txt)
+        this._text = ifUndefined(txt,"")
+    }
+
+    get text() { return this._text.toString() }
+}
+
 class BinaryOp extends Expr
 {
     constructor(operator,op1,op2)
@@ -290,10 +302,15 @@ ProcedureCall.action = 'ProcCall'
 
 class Output extends Statement
 {
+    /**
+     * Constructor receiving an expression which should evaluate to a Text value
+     * @param {Expr} msg An expression resulting in a Text value
+     * 
+     */
     constructor(msg)
     {
         super(Output.action);
-        this.msg = ifUndefined(msg,"")
+        this.msg = ifUndefined(msg,new TextLiteral(""))
     }
 
     get message() { return this.msg }
@@ -317,5 +334,6 @@ module.exports = {
     WhileLoop,
     ProcedureDef,
     ProcedureCall,
-    Output
+    Output,
+    TextLiteral
 }

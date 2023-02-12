@@ -4,8 +4,9 @@ const {Forward,Right, Program, Loop,SetPenColor,
        PenActive, Comment, BinaryOp,
        NumberLiteral,VarDecl,VarEvaluation,
        VarAssign,Branch,WhileLoop,
-       ProcedureDef,ProcedureCall,Output} = require("../src/IR");
-const {number,binOp} = require("./util")
+       ProcedureDef,ProcedureCall,Output,
+       TextLiteral} = require("../src/IR");
+const {number,binOp,text} = require("./util")
 
 function createDefaultParser()
 {
@@ -609,7 +610,43 @@ describe('Parser', function () {
       `
 
       let expectedProgram = new Program([
-        new Output("hello world")
+        new Output(new TextLiteral("hello world"))
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it ("parses a 'say' command with a simple concatenation",function() {
+      let testSource = String.raw`
+        say 'hello' ++ 'world';
+      `
+
+      let expectedProgram = new Program([
+        new Output(binOp('++',new TextLiteral('hello'),new TextLiteral('world')) )
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it ("parses string literals with spaces correctly",function() {
+      let testSource = String.raw`
+        say ' hello world ';
+      `
+
+      let expectedProgram = new Program([
+        new Output(new TextLiteral(' hello world ') )
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("preserves spaces in concatenation",function() {
+      let testSource = String.raw`
+        say ' hello' ++ ' ' ++ 'world ';
+      `
+
+      let expectedProgram = new Program([
+        new Output(binOp('++',binOp('++',text(' hello'),text(' ')),text('world ')))
       ])
 
       parseAndCompare(testSource,expectedProgram)

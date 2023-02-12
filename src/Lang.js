@@ -7,7 +7,7 @@ const { Forward,Right, Program, Loop, SetPenColor,
         NumberLiteral,VarEvaluation,VarDecl,
         VarAssign,Branch,WhileLoop,
         ProcedureDef,ProcedureCall,
-        Output } = require("./IR")
+        Output,TextLiteral } = require("./IR")
 
 const BASE_GRAMMAR_VARIANT = "english_terse"
 
@@ -245,13 +245,21 @@ function createParser(variant)
             return [new ProcedureCall(procedure,[])]
         },
 
-        TextLiteral(s) {
-            return [s.sourceString]
+        textLiteral(_,prefixSpace,s,suffixSpace,__) {
+            let prefix = prefixSpace.sourceString
+            let suffix = suffixSpace.sourceString
+            return [new TextLiteral(prefix + s.sourceString + suffix)]
         },
 
-        Say(_,__,_msg,___) {
+        TextExpr_concat(t1,_,t2) {
+            let txtExpr1 = t1.asIR()[0]
+            let txtExpr2 = t2.asIR()[0]
+            return [new BinaryOp('++',txtExpr1,txtExpr2)]
+        },
+
+        Say(_,_msg) {
             let msg = _msg.asIR()[0]
-            return [new Output(msg.length > 0 ? msg : "")]
+            return [new Output(msg)]
         }
     })
     

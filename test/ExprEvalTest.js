@@ -1,6 +1,6 @@
 const assert = require('assert');
 const rewire = require("rewire");
-const {number,binOp} = require('./util')
+const {number,text,binOp} = require('./util')
 
 const ExprEval = rewire('../src/LogoVM.js').__get__("ExprEval")
 
@@ -109,5 +109,18 @@ describe("Expr Evaluator",function() {
 
         assert.strictEqual(ee.eval(binOp('=/=',binOp('+',number(1),number(1)),number(2))), false)
         assert.strictEqual(ee.eval(binOp('=/=',binOp('+',number(1),number(1)),binOp('-',number(10),number(3)))), true)
+    })
+
+    it("should evaluate a simple text concat of 2,3 text literals",function() {
+        let ee = new ExprEval()
+        assert.strictEqual(
+            ee.eval(binOp('++',text('hello'),text('world'))),
+            "helloworld"
+        )
+
+        assert.strictEqual(
+            ee.eval(binOp('++',binOp('++',text('hello'),text(' ')),text('world'))),
+            "hello world"
+        )
     })
 })

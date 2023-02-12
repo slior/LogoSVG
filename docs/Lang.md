@@ -31,7 +31,8 @@ Unless otherwise noted, whenever a number value is accepted, an expression is ac
 Number values are denoted using a series of number, with a possible decimal point.  
 A negative number is specified by preceding the number with a minus (`-`) sign.
 
-Strings are possible with the `say` statement.
+Text (string) is possible with the `say` statement.  
+Text literals are enclosed in single quotes. For example: `'hello world'`.
 
 ### Mathematical Operators
 
@@ -42,6 +43,13 @@ Use can use parenthesis - `(`, `)` - to force precedence.
 ### Comparison Operators
 Supported comparison operators are: `==`, `=/=`, `>`, `<`, `>=`, `<=`
 
+### Text Operators
+Text concatenation is possible with the `++` operator.  
+For example:
+```
+say 'hello' ++ ' ' ++ 'world';
+```
+should output: `hello world`.
 ## Statements
 
 The language is imperative. All commands are statements that are executed in the order they are written.  
@@ -65,7 +73,7 @@ Current language statements are:
 | `let` _name_ `=` _value_ `;` | Variable name and `value` : Expression | Defines a variable with the given value (can be an expression) to initialize it |
 | `procedure` _name_ `(` _parameters_ `):` ... `end;` | | Defines a procedure with the given name and parameters. |
 | `call` _name_ `with` _param1_ `=` _value1_ `,` ... _paramN_ `=` _valueN_ `;` | | Call (execute) the given procedure, identified by name, with the given parameter values. |
-| `say` _what_ | `what` : Text | Output the given text, currently only to console.
+| `say` _what_ | `what` : Text Expression | Output the given text, currently only to console.
 
 
 ## Variants

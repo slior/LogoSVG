@@ -6,7 +6,7 @@ const { Forward,Right, Loop, SetPenColor,
         PenActive, NumberLiteral, BinaryOp,
         VarDecl,VarEvaluation,VarAssign,
         Branch,WhileLoop, ProcedureDef,
-        ProcedureCall,Output} = require("./IR")
+        ProcedureCall,Output, TextLiteral} = require("./IR")
 
 
 
@@ -18,6 +18,7 @@ class ExprEval
     constructor() 
     { 
         this.handlersByType = {}
+        this.handlersByType[TextLiteral.name] = (e,vmState) => this.evalTextLiteral(e,vmState)
         this.handlersByType[NumberLiteral.name] = (e,vmState) => this.evalNumberLiteral(e,vmState)
         this.handlersByType[BinaryOp.name] = (e,vmState) => this.evalBinOp(e,vmState)
         this.handlersByType[VarEvaluation.name] = (e,vmState) => this.evalVar(e,vmState)
@@ -43,6 +44,12 @@ class ExprEval
         return numExp.number;
     }
 
+    evalTextLiteral(txtExp,_)
+    {
+        assert(txtExp instanceof TextLiteral,"expression must be a text literal")
+        return txtExp.text
+    }
+
     evalBinOp(binOpExp,vmState)
     {
         assert(binOpExp instanceof BinaryOp,"expression must be a binary operation")
@@ -62,6 +69,7 @@ class ExprEval
             case '==': return arg1 == arg2;
             case '=/=': return arg1 != arg2;
             case '%' : return arg1 % arg2;
+            case '++' : return (arg1 + arg2).toString();  //string concatenation
             default : throw new Error(`Unknown binary operator ${binOpExp.operator}`)
         }
     }
@@ -154,7 +162,7 @@ class LogoVM
 
     output(outStmt,vmState)
     {
-        this.outputCallback(outStmt.message)
+        this.outputCallback(this.exprEvaluator.eval(outStmt.message,vmState))
         return vmState
     }
 
