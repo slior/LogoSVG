@@ -92,9 +92,9 @@ let minSides = 2;
 
 procedure shape(_sides,size):
   if (_sides % 3) == 0 then
-      pc blue;
+      pc 'blue';
     else
-      pc green;
+      pc 'green';
     end;
   
   repeat _sides
@@ -142,9 +142,9 @@ Drawing shapes of different sizes and number of squares, with different colors
 
 שגרה צורה(צד,גודל):
     אם (צד % 3) == 0 אז
-      צבע blue;
+      צבע 'blue';
     אחרת
-      צבע green;
+      צבע 'green';
     סוף;
   חזור צד
     קד 50;

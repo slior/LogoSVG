@@ -87,7 +87,8 @@ function createParser(variant)
         },
         color_name(color)
         {
-            return [color.sourceString]
+            let colorLiteral = color.asIR()[0]
+            return [colorLiteral.text]
         },
     
         Statement(c) {

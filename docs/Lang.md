@@ -80,7 +80,7 @@ Current language statements are:
 | `bk` _howMuch_   | `howMuch` : Number | Move backward by `howMuch` steps |
 | `rt` _howMuch_   | `howMuch` : Number | Turn right by `howMuch` degrees |
 | `lt` _howMuch_   | `howMuch` : Number | Turn left by `howMuch` degrees |
-| `pc` _color_   | `color` : String | Change pen color. Current acceptable values are acceptable values in CSS |
+| `pc` _color_   | `color` : Text | Change pen color. Current acceptable values are acceptable color names in CSS. Parameter is a text literal. |
 | `pu`    |  | Lift up the pen (make it inactive). Subsequent moves of the pen (`fd`, `bk`) will _not_ draw lines |
 | `pd`    |  | Put the pen down (make it active). Subsequent moves of the pen (`fd`, `bk`) _will_ draw lines |
 | `repeat` _iterations_ ...`end;` | `iterations` : Number | Repeat the embedded block (up to `end;`) number of iterations indicated by `iterations` |

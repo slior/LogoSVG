@@ -114,7 +114,7 @@ LogoSVG {
         full_ident = identStart identChar*
 
         ident = ~reserved_word full_ident
-        color_name = alnum+ //should be any color allowed in the SVG styling
+        color_name = textLiteral //should be any color name allowed in the SVG styling
         
         comment = "//" (~"\n" any)*
 

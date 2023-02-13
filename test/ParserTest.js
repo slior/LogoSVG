@@ -69,7 +69,7 @@ describe('Parser', function () {
       let testProgram = String.raw`
           fd 100;
           rt 90;
-          pc red;
+          pc 'red';
           fd 100;
       `
       parseAndCompare(testProgram,
