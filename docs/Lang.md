@@ -32,7 +32,8 @@ Number values are denoted using a series of number, with a possible decimal poin
 A negative number is specified by preceding the number with a minus (`-`) sign.
 
 Text (string) is possible with the `say` statement.  
-Text literals are enclosed in single quotes. For example: `'hello world'`.
+Text literals are enclosed in single quotes. For example: `'hello world'`.  
+For now, text literals allow only alphanumeric and space characters.
 
 ### Mathematical Operators
 
@@ -50,6 +51,21 @@ For example:
 say 'hello' ++ ' ' ++ 'world';
 ```
 should output: `hello world`.
+
+Concatenation works also with numerical expression.  
+For example:
+```
+let x = 8;
+say 'x is ' ++ x;
+say (x*2) ++ ' is 16';
+```
+should output:
+```
+x is 8
+16 is 16
+```
+
+
 ## Statements
 
 The language is imperative. All commands are statements that are executed in the order they are written.  

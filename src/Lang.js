@@ -257,6 +257,18 @@ function createParser(variant)
             return [new BinaryOp('++',txtExpr1,txtExpr2)]
         },
 
+        TextExpr_concat_expr(t1,_,t2) {
+            let txtExpr = t1.asIR()[0]
+            let numericExpr = t2.asIR()[0]
+            return [new BinaryOp('++',txtExpr,numericExpr)]
+        },
+
+        TextExpr_expr_concat(t1,_,t2) {
+            let numericExpr = t1.asIR()[0]
+            let txtExpr = t2.asIR()[0]
+            return [new BinaryOp('++',numericExpr,txtExpr)]
+        },
+
         Say(_,_msg) {
             let msg = _msg.asIR()[0]
             return [new Output(msg)]

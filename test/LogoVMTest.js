@@ -2,10 +2,10 @@ const assert = require('assert');
 const should = require('should')
 const { LogoVM } = require('../src/LogoVM')
 const { VMState } = require('../src/VMState')
-const { number,binOp } = require("./util")
+const { number,binOp,text } = require("./util")
 const { Forward,VarDecl,VarEvaluation,VarAssign,Branch,
         WhileLoop,ProcedureDef,ProcedureCall,
-        Loop,Right} = require('../src/IR')
+        Loop,Right,Output} = require('../src/IR')
 
 const createMockVMImpl = (drawingEl) => { return {
     line : (x1,y1,x2,y2) => {
@@ -281,6 +281,19 @@ describe("LogoVM",function() {
                 new VarAssign("size",number(50))
             ]),s3)
             assert.strictEqual(s4.valueOf("sides"),4)
+        })
+    })
+
+    describe("Text Expressions",function() {
+        it("Evaluates text concatenation with numeric expressions correctly",function() {
+
+            const outputVerifier = msg => assert.strictEqual(msg,"hello5")
+
+            let vm = new LogoVM({},createMockVMImpl,outputVerifier)
+            let s1 = new VMState(200,300,0)
+            let s2 = vm.declareVar(new VarDecl('x',number(5)),s1)
+            let s3 = vm.output(new Output(binOp('++',text("hello"),new VarEvaluation('x'))),s2)
+            assert.strictEqual(s3.valueOf('x'),5)
         })
     })
 })

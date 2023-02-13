@@ -123,4 +123,12 @@ describe("Expr Evaluator",function() {
             "hello world"
         )
     })
+
+    it("should coerce a number to text when concatenating",function() {
+        let ee = new ExprEval()
+        assert.strictEqual(
+            ee.eval(binOp('++',text('hello'),number(2))),
+            "hello2"
+        )
+    })
 })

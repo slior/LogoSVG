@@ -651,5 +651,33 @@ describe('Parser', function () {
 
       parseAndCompare(testSource,expectedProgram)
     })
+
+    it("Parses concatenation with numeric expressions correctly",function() {
+      let testSource = String.raw`
+      let x = 8;
+      say 'x is' ++ x ;
+      `
+
+      let expectedProgram = new Program([
+        new VarDecl('x',number(8)),
+        new Output(binOp('++',text('x is'),new VarEvaluation('x')))
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
+
+    it("Parse concatenation with numeric expression first",function() {
+      let testSource = String.raw`
+      let x = 8;
+      say (x+1) ++ ' is x' ;
+      `
+
+      let expectedProgram = new Program([
+        new VarDecl('x',number(8)),
+        new Output(binOp('++',binOp('+',new VarEvaluation('x'),number(1)),text(' is x')))
+      ])
+
+      parseAndCompare(testSource,expectedProgram)
+    })
   });
 });

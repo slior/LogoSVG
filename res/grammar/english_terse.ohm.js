@@ -71,6 +71,8 @@ LogoSVG {
         textLiteral = "'" spaces textCharacter* spaces "'"
         Say = say TextExpr
         TextExpr = TextExpr "++" textLiteral --concat
+        | TextExpr "++" Expr -- concat_expr
+        | Expr "++" TextExpr -- expr_concat
         | textLiteral
 
         ///------------- Comparsion Operators
